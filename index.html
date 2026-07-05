@@ -1011,24 +1011,27 @@
 
         renderEngine();
     </script>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>RuralShare</title>
+    <!-- Cargar la biblioteca de Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
     <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
 
-  // Your web app's Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyCH7gZSiZUKyVd66v4PdP7u8QEj8AdgkQ8",
-    authDomain: "ruralshare-a9367.firebaseapp.com",
-    projectId: "ruralshare-a9367",
-    storageBucket: "ruralshare-a9367.firebasestorage.app",
-    messagingSenderId: "455186533902",
-    appId: "1:455186533902:web:a2fb9e1c3c56f144d7b65f"
-  };
+        const supabaseUrl = 'https://yikzcchxdpgeztuifyzs.supabase.co';
+        const supabaseAnonKey = 'sb_publishable_478tpkZDqy91QKd2E9pmqQ_ZRsSmEVI';
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
+        const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+        // Tu código de la app continúa aquí
+        console.log("Supabase inicializado correctamente");
+    </script>
 </script>
 </body>
 </html>
