@@ -275,14 +275,6 @@
         const SUPABASE_ANON_KEY = "sb_publishable_478tpkZDqy91QKd2E9pmqQ_ZRsSmEVI";
 
         const isConfigured = SUPABASE_URL !== "https://yikzcchxdpgeztuifyzs.supabase.co" && SUPABASE_ANON_KEY !== "sb_publishable_478tpkZDqy91QKd2E9pmqQ_ZRsSmEVI";
-        if(!isConfigured){
-            document.addEventListener('DOMContentLoaded', () => {
-                const w = document.createElement('div');
-                w.style.cssText = "position:fixed;top:0;left:0;right:0;background:#7f1d1d;color:#fff;padding:10px 16px;font-size:13px;text-align:center;z-index:9999;";
-                w.innerHTML = "⚠️ Falta configurar Supabase (URL y clave anon) al principio del &lt;script&gt; final del archivo.";
-                document.body.prepend(w);
-            });
-        }
 
         const supabase = isConfigured ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
@@ -357,23 +349,73 @@
         }
 
         async function sbInsert(table, row){
-            const { data, error } = await supabase.from(table).insert(row).select().single();
-            if(error){ alert('Error guardando: ' + error.message); return null; }
-            db[table][data.id] = data;
-            renderEngine();
-            return data;
+            if(!supabase){ alert('Supabase no está configurado (revisa SUPABASE_URL y SUPABASE_ANON_KEY al principio del script).'); return null; }
+            try{
+                const { data, error } = await supabase.from(table).insert(row).select();
+                if(error){
+                    console.error('sbInsert error', table, row, error);
+                    alert('Error guardando en "' + table + '": ' + (error.message || JSON.stringify(error)));
+                    return null;
+                }
+                // Si RLS bloquea la lectura tras insertar, data llega vacío aunque la fila SÍ se guardó.
+                if(data && data[0]){
+                    db[table][data[0].id] = data[0];
+                    renderEngine();
+                    return data[0];
+                }
+                // Fallback: refrescamos esa tabla entera para recuperar la fila recién creada.
+                await refreshTable(table);
+                return Object.values(db[table]).sort((a,b) => new Date(b.created_at) - new Date(a.created_at))[0] || null;
+            }catch(e){
+                console.error('sbInsert exception', table, row, e);
+                alert('Error inesperado guardando en "' + table + '": ' + e.message);
+                return null;
+            }
         }
         async function sbUpdate(table, id, patch){
-            const { data, error } = await supabase.from(table).update(patch).eq('id', id).select().single();
-            if(error){ alert('Error actualizando: ' + error.message); return null; }
-            db[table][id] = data;
-            renderEngine();
-            return data;
+            if(!supabase){ alert('Supabase no está configurado (revisa SUPABASE_URL y SUPABASE_ANON_KEY al principio del script).'); return null; }
+            try{
+                const { data, error } = await supabase.from(table).update(patch).eq('id', id).select();
+                if(error){
+                    console.error('sbUpdate error', table, id, patch, error);
+                    alert('Error actualizando "' + table + '": ' + (error.message || JSON.stringify(error)));
+                    return null;
+                }
+                if(data && data[0]){
+                    db[table][id] = data[0];
+                } else if(db[table][id]){
+                    // RLS bloquea la lectura tras actualizar: aplicamos el cambio localmente igualmente.
+                    db[table][id] = Object.assign({}, db[table][id], patch);
+                }
+                renderEngine();
+                return db[table][id] || null;
+            }catch(e){
+                console.error('sbUpdate exception', table, id, patch, e);
+                alert('Error inesperado actualizando "' + table + '": ' + e.message);
+                return null;
+            }
         }
         async function sbDelete(table, id){
-            const { error } = await supabase.from(table).delete().eq('id', id);
-            if(error){ alert('Error eliminando: ' + error.message); return; }
-            delete db[table][id];
+            if(!supabase){ alert('Supabase no está configurado (revisa SUPABASE_URL y SUPABASE_ANON_KEY al principio del script).'); return; }
+            try{
+                const { error } = await supabase.from(table).delete().eq('id', id);
+                if(error){
+                    console.error('sbDelete error', table, id, error);
+                    alert('Error eliminando en "' + table + '": ' + (error.message || JSON.stringify(error)));
+                    return;
+                }
+                delete db[table][id];
+                renderEngine();
+            }catch(e){
+                console.error('sbDelete exception', table, id, e);
+                alert('Error inesperado eliminando en "' + table + '": ' + e.message);
+            }
+        }
+        async function refreshTable(table){
+            if(!supabase) return;
+            const { data, error } = await supabase.from(table).select('*');
+            if(error){ console.error('refreshTable error', table, error); return; }
+            db[table] = Object.fromEntries((data||[]).map(row => [row.id, row]));
             renderEngine();
         }
 
