@@ -138,10 +138,9 @@
 
     <div id="creation-attendees-screen" class="app-overlay">
         <div class="flow-card">
-            <div class="flow-title">👥 ¿Quién participa?</div>
-            <div class="flow-subtitle">Marca los amigos que se apuntan a esta escapada:</div>
+            <div class="flow-title">👤 ¿Quién crea la escapada?</div>
+            <div class="flow-subtitle">Elige tu perfil para publicar este viaje:</div>
             <div class="scrollable-grid-list" id="creation-users-target"></div>
-            <button class="btn-action" style="width: 100%; margin-bottom: 8px;" onclick="window.confirmAndPublishEvent()">Crear Viaje ➔</button>
             <button class="btn-key key-wide key-close" style="width:100%; border-radius:var(--border-radius-sm);" onclick="window.cancelEventCreationWizard()">❌ Cancelar</button>
         </div>
     </div>
@@ -163,15 +162,6 @@
             <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 18px;" id="edit-user-colors-grid"></div>
             <button class="btn-action" style="width: 100%; margin-bottom: 8px;" onclick="window.saveUserEdits()">Guardar Cambios</button>
             <button class="btn-key key-wide key-close" style="width: 100%;" onclick="window.closeEditUserPopup()">Cancelar</button>
-        </div>
-    </div>
-
-    <div id="extra-member-picker-popup" class="qty-popup-overlay" onclick="window.closeExtraMemberPopup()">
-        <div class="qty-popup-card" onclick="event.stopPropagation()">
-            <div style="font-weight: 800; font-size: 16px; color: var(--accent); margin-bottom: 2px; text-align:left;">👥 Gestionar Viajeros</div>
-            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px; text-align:left;">Añade o quita componentes de esta escapada:</div>
-            <div class="scrollable-grid-list" id="extra-members-modal-target" style="max-height: 260px;"></div>
-            <button class="btn-key key-wide key-close" style="width:100%;" onclick="window.closeExtraMemberPopup()">Listo</button>
         </div>
     </div>
 
@@ -257,67 +247,140 @@
         </section>
     </main>
 
+    <!--
+      ═══════════════════════════════════════════════════════════════════
+      CONEXIÓN CON SUPABASE
+      ═══════════════════════════════════════════════════════════════════
+      1. Pega abajo tu Project URL y tu clave "anon / public" (Supabase →
+         Project Settings → API).
+      2. Para que la app pueda leer y escribir con esa clave, o bien
+         desactivas RLS en las 4 tablas (Table Editor → cada tabla →
+         botón "RLS disabled", suficiente para un grupo de amigos), o
+         creas políticas que permitan select/insert/update/delete a
+         "anon". Sin esto Supabase rechazará todas las peticiones.
+      3. Para que los cambios se vean en tiempo real en todos los
+         móviles: Database → Replication → activa las 4 tablas
+         (usuarios, eventos, grupos, productos).
+      4. Tablas y columnas que usa esta app (las que ya creaste):
+           usuarios  → id, created_at, nombre, color
+           eventos   → id, created_at, nombre, usuario_id
+           grupos    → id, created_at, nombre, evento_id, usuario_id
+           productos → id, created_at, nombre, grupo_id, usuario_id,
+                       cantidad_deseada, cantidad_comprada
+      ═══════════════════════════════════════════════════════════════════
+    -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        const SUPABASE_URL = "https://yikzcchxdpgeztuifyzs.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_478tpkZDqy91QKd2E9pmqQ_ZRsSmEVI";
 
-        const firebaseConfig = {
-            databaseURL: "https://ruralshare-default-rtdb.europe-west1.firebasedatabase.app/" 
-        };
+        const isConfigured = SUPABASE_URL !== "https://yikzcchxdpgeztuifyzs.supabase.co" && SUPABASE_ANON_KEY !== "sb_publishable_478tpkZDqy91QKd2E9pmqQ_ZRsSmEVI";
+        if(!isConfigured){
+            document.addEventListener('DOMContentLoaded', () => {
+                const w = document.createElement('div');
+                w.style.cssText = "position:fixed;top:0;left:0;right:0;background:#7f1d1d;color:#fff;padding:10px 16px;font-size:13px;text-align:center;z-index:9999;";
+                w.innerHTML = "⚠️ Falta configurar Supabase (URL y clave anon) al principio del &lt;script&gt; final del archivo.";
+                document.body.prepend(w);
+            });
+        }
 
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
+        const supabase = isConfigured ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
         const HIGH_CONTRAST_COLORS = [
-            "#e63946", "#1d3557", "#2a9d8f", "#f4a261", "#6a0dad", 
-            "#ff007f", "#0077b6", "#b5179e", "#2b9348", "#f77f00", 
+            "#e63946", "#1d3557", "#2a9d8f", "#f4a261", "#6a0dad",
+            "#ff007f", "#0077b6", "#b5179e", "#2b9348", "#f77f00",
             "#4a5759", "#ad2831", "#0f4c5c", "#70e000", "#e07a5f"
         ];
 
-        let db = { events: {}, subgroups: {}, products: {}, users: {}, activeEventId: "" };
-        let activeUserId = null; 
-        let temporaryWizardAttendees = {}; 
+        // Caché local (se mantiene sincronizada con Supabase en tiempo real)
+        let db = { usuarios: {}, eventos: {}, grupos: {}, productos: {} };
+
+        let activeEventId = localStorage.getItem('rs_active_event') || "";
+        let activeUserId = localStorage.getItem('rs_active_user') || null;
         let pendingEventName = "";
-        let selectedProductForQtyId = ""; 
-        let currentTab = "events"; 
+        let selectedProductForQtyId = "";
+        let currentTab = "events";
 
         let editingUserId = null;
         let selectedEditingColor = "";
         let deleteTargetEventId = null;
         let deleteTargetEventName = "";
 
-        // Estados globales para el nuevo Popup interactivo de Cantidades del Carrito
         let cartQtyTargetProductId = null;
         let cartQtyCurrentValue = 0;
         let cartQtyMaxValue = 1;
 
-        const dbRef = ref(database, 'sharedata_v17/');
-        
-        onValue(dbRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                db.events = data.events || {};
-                db.subgroups = data.subgroups || {};
-                db.products = data.products || {};
-                db.users = data.users || {};
-                db.activeEventId = data.activeEventId || "";
+        // --- helpers de cantidades derivadas (no se guarda "checked" en la BD) ---
+        function isProductChecked(p){
+            const total = p.cantidad_deseada || 1;
+            return (p.cantidad_comprada || 0) >= total;
+        }
+
+        // ════════════════════════════════════════════════════════════
+        // CARGA INICIAL + TIEMPO REAL
+        // ════════════════════════════════════════════════════════════
+        async function loadAll(){
+            if(!supabase) return;
+            const [u, e, g, p] = await Promise.all([
+                supabase.from('usuarios').select('*'),
+                supabase.from('eventos').select('*'),
+                supabase.from('grupos').select('*'),
+                supabase.from('productos').select('*')
+            ]);
+            [u,e,g,p].forEach(r => { if(r.error) console.error(r.error); });
+            db.usuarios = Object.fromEntries((u.data||[]).map(row => [row.id, row]));
+            db.eventos = Object.fromEntries((e.data||[]).map(row => [row.id, row]));
+            db.grupos = Object.fromEntries((g.data||[]).map(row => [row.id, row]));
+            db.productos = Object.fromEntries((p.data||[]).map(row => [row.id, row]));
+            checkAuthenticationState();
+            renderEngine();
+        }
+
+        function applyRealtimeEvent(kind, payload){
+            if(payload.eventType === 'DELETE'){
+                delete db[kind][payload.old.id];
+            } else {
+                db[kind][payload.new.id] = payload.new;
             }
             checkAuthenticationState();
             renderEngine();
-        });
+        }
 
-        // Optimizado: Ejecuta instantáneamente el dibujado en pantalla local para evitar fallas por lag de red
-        function syncPush() {
-            set(ref(database, 'sharedata_v17/'), db);
+        function subscribeRealtime(){
+            if(!supabase) return;
+            supabase.channel('rs-changes')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'usuarios' }, p => applyRealtimeEvent('usuarios', p))
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'eventos' }, p => applyRealtimeEvent('eventos', p))
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'grupos' }, p => applyRealtimeEvent('grupos', p))
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'productos' }, p => applyRealtimeEvent('productos', p))
+                .subscribe();
+        }
+
+        async function sbInsert(table, row){
+            const { data, error } = await supabase.from(table).insert(row).select().single();
+            if(error){ alert('Error guardando: ' + error.message); return null; }
+            db[table][data.id] = data;
+            renderEngine();
+            return data;
+        }
+        async function sbUpdate(table, id, patch){
+            const { data, error } = await supabase.from(table).update(patch).eq('id', id).select().single();
+            if(error){ alert('Error actualizando: ' + error.message); return null; }
+            db[table][id] = data;
+            renderEngine();
+            return data;
+        }
+        async function sbDelete(table, id){
+            const { error } = await supabase.from(table).delete().eq('id', id);
+            if(error){ alert('Error eliminando: ' + error.message); return; }
+            delete db[table][id];
             renderEngine();
         }
 
         function checkAuthenticationState() {
             if (currentTab === 'general' || currentTab === 'cart') {
-                const currentEvent = db.events[db.activeEventId];
-                const isAttendee = currentEvent && currentEvent.attendees && currentEvent.attendees[activeUserId];
-
-                if (!db.activeEventId || !currentEvent || !activeUserId || !db.users[activeUserId] || !isAttendee) {
+                const currentEvent = db.eventos[activeEventId];
+                if (!activeEventId || !currentEvent || !activeUserId || !db.usuarios[activeUserId]) {
                     document.getElementById('login-screen').classList.add('active');
                 } else {
                     document.getElementById('login-screen').classList.remove('active');
@@ -328,22 +391,29 @@
         }
 
         function assignNextColor() {
-            const usedColors = Object.values(db.users).map(u => u.color.toLowerCase());
+            const usedColors = Object.values(db.usuarios).map(u => (u.color||'').toLowerCase());
             const availableColors = HIGH_CONTRAST_COLORS.filter(c => !usedColors.includes(c.toLowerCase()));
             return availableColors.length > 0 ? availableColors[0] : HIGH_CONTRAST_COLORS[Math.floor(Math.random() * HIGH_CONTRAST_COLORS.length)];
         }
 
+        // ════════════════════════════════════════════════════════════
+        // NAVEGACIÓN
+        // ════════════════════════════════════════════════════════════
         window.goToEventsHome = function() {
-            db.activeEventId = "";
+            activeEventId = "";
             activeUserId = null;
+            localStorage.removeItem('rs_active_event');
+            localStorage.removeItem('rs_active_user');
             currentTab = "events";
             document.getElementById('login-screen').classList.remove('active');
             renderEngine();
         }
 
         window.selectActiveEvent = function(id) {
-            db.activeEventId = id;
-            activeUserId = null; 
+            activeEventId = id;
+            activeUserId = null;
+            localStorage.setItem('rs_active_event', id);
+            localStorage.removeItem('rs_active_user');
             currentTab = "general";
             checkAuthenticationState();
             renderEngine();
@@ -351,20 +421,24 @@
 
         window.loginAsUser = function(userId) {
             activeUserId = userId;
+            localStorage.setItem('rs_active_user', userId);
             document.getElementById('login-screen').classList.remove('active');
             renderEngine();
         }
 
         window.cancelEventLogin = function() {
             currentTab = "events";
-            db.activeEventId = "";
+            activeEventId = "";
             activeUserId = null;
+            localStorage.removeItem('rs_active_event');
+            localStorage.removeItem('rs_active_user');
             document.getElementById('login-screen').classList.remove('active');
             renderEngine();
         }
 
         window.changeIdentityInsideTrip = function() {
             activeUserId = null;
+            localStorage.removeItem('rs_active_user');
             checkAuthenticationState();
             renderEngine();
         }
@@ -379,7 +453,9 @@
             renderEngine();
         }
 
-        // --- GESTIÓN GLOBAL DE AMIGOS ---
+        // ════════════════════════════════════════════════════════════
+        // GESTIÓN GLOBAL DE AMIGOS
+        // ════════════════════════════════════════════════════════════
         window.openGlobalUsersModal = function() {
             document.getElementById('global-users-modal').classList.add('active');
             renderGlobalUsersList();
@@ -391,13 +467,11 @@
             renderEngine();
         }
 
-        window.createGlobalUser = function() {
+        window.createGlobalUser = async function() {
             const el = document.getElementById('global-user-input');
             if(!el.value.trim()) return;
-            const id = "u_" + Date.now();
-            db.users[id] = { id: id, name: el.value.trim(), color: assignNextColor() };
+            await sbInsert('usuarios', { nombre: el.value.trim(), color: assignNextColor() });
             el.value = '';
-            syncPush();
             renderGlobalUsersList();
         }
 
@@ -405,7 +479,7 @@
             const target = document.getElementById('global-users-list-target');
             if(!target) return;
             target.innerHTML = '';
-            const list = Object.values(db.users);
+            const list = Object.values(db.usuarios);
             if(list.length === 0) {
                 target.innerHTML = `<div style="font-size:13px; color:var(--text-muted); padding:10px 0;">No hay amigos guardados.</div>`;
                 return;
@@ -415,7 +489,7 @@
                 div.className = 'interactive-item';
                 div.style.borderLeft = `14px solid ${u.color}`;
                 div.innerHTML = `
-                    <span class="item-main-text" style="font-size:14px;">👤 ${u.name}</span>
+                    <span class="item-main-text" style="font-size:14px;">👤 ${u.nombre}</span>
                     <button class="btn-pill-claim" style="border-color:var(--primary); color:var(--primary);" onclick="window.openEditUserPopup('${u.id}')">✏️</button>
                 `;
                 target.appendChild(div);
@@ -423,18 +497,18 @@
         }
 
         window.openEditUserPopup = function(userId) {
-            const user = db.users[userId];
+            const user = db.usuarios[userId];
             if(!user) return;
             editingUserId = userId;
             selectedEditingColor = user.color;
-            
-            document.getElementById('edit-user-name-input').value = user.name;
-            const colorsInUseByOthers = Object.values(db.users).filter(u => u.id !== editingUserId).map(u => u.color.toLowerCase());
+
+            document.getElementById('edit-user-name-input').value = user.nombre;
+            const colorsInUseByOthers = Object.values(db.usuarios).filter(u => u.id !== editingUserId).map(u => (u.color||'').toLowerCase());
 
             const grid = document.getElementById('edit-user-colors-grid');
             if(!grid) return;
             grid.innerHTML = '';
-            
+
             HIGH_CONTRAST_COLORS.forEach(color => {
                 const btn = document.createElement('button');
                 btn.type = 'button';
@@ -442,7 +516,7 @@
                 btn.style.height = '36px';
                 btn.style.borderRadius = '8px';
                 btn.style.position = 'relative';
-                
+
                 const isTaken = colorsInUseByOthers.includes(color.toLowerCase());
                 if (isTaken) {
                     btn.style.opacity = '0.25';
@@ -472,18 +546,18 @@
             editingUserId = null;
         }
 
-        window.saveUserEdits = function() {
-            if(!editingUserId || !db.users[editingUserId]) return;
+        window.saveUserEdits = async function() {
+            if(!editingUserId || !db.usuarios[editingUserId]) return;
             const newName = document.getElementById('edit-user-name-input').value.trim();
             if(!newName) return;
-            db.users[editingUserId].name = newName;
-            db.users[editingUserId].color = selectedEditingColor;
-            syncPush();
+            await sbUpdate('usuarios', editingUserId, { nombre: newName, color: selectedEditingColor });
             window.closeEditUserPopup();
             renderGlobalUsersList();
         }
 
-        // --- ELIMINAR VIAJES ---
+        // ════════════════════════════════════════════════════════════
+        // ELIMINAR ESCAPADAS (cascada manual: productos → grupos → evento)
+        // ════════════════════════════════════════════════════════════
         window.triggerEventDeleteFlow = function(eventId, eventName, event) {
             event.stopPropagation();
             deleteTargetEventId = eventId;
@@ -539,123 +613,92 @@
             }
         }
 
-        window.executeEventDeletionCloud = function() {
+        window.executeEventDeletionCloud = async function() {
             if(!deleteTargetEventId) return;
-            Object.keys(db.subgroups).forEach(sgId => {
-                if(db.subgroups[sgId].eventId === deleteTargetEventId) {
-                    Object.keys(db.products).forEach(pId => {
-                        if(db.products[pId].subgroupId === sgId) delete db.products[pId];
-                    });
-                    delete db.subgroups[sgId];
-                }
-            });
-            if(db.activeEventId === deleteTargetEventId) window.goToEventsHome();
-            delete db.events[deleteTargetEventId];
-            syncPush();
+            const grupoIds = Object.values(db.grupos).filter(g => g.evento_id === deleteTargetEventId).map(g => g.id);
+
+            if(grupoIds.length > 0){
+                const { error: e1 } = await supabase.from('productos').delete().in('grupo_id', grupoIds);
+                if(e1) console.error(e1);
+            }
+            const { error: e2 } = await supabase.from('grupos').delete().eq('evento_id', deleteTargetEventId);
+            if(e2) console.error(e2);
+            const { error: e3 } = await supabase.from('eventos').delete().eq('id', deleteTargetEventId);
+            if(e3) console.error(e3);
+
+            // Limpieza optimista de la caché local (el realtime también lo confirmará)
+            Object.values(db.productos).forEach(p => { if(grupoIds.includes(p.grupo_id)) delete db.productos[p.id]; });
+            grupoIds.forEach(gid => delete db.grupos[gid]);
+            delete db.eventos[deleteTargetEventId];
+
+            if(activeEventId === deleteTargetEventId) window.goToEventsHome();
+            renderEngine();
             window.closeDeleteModal();
         }
 
-        // --- WIZARD DE ASISTENCIA ---
+        // ════════════════════════════════════════════════════════════
+        // CREACIÓN DE ESCAPADA (selección de creador en un único paso)
+        // ════════════════════════════════════════════════════════════
         window.triggerEventCreationWizard = function() {
             const el = document.getElementById('event-input');
             if(!el.value.trim()) return;
             pendingEventName = el.value.trim();
-            temporaryWizardAttendees = {}; 
             document.getElementById('creation-attendees-screen').classList.add('active');
-            renderWizardUI();
+            renderCreatorPickerUI();
         }
 
         window.cancelEventCreationWizard = function() {
             pendingEventName = "";
-            temporaryWizardAttendees = {};
             document.getElementById('event-input').value = '';
             document.getElementById('creation-attendees-screen').classList.remove('active');
             currentTab = "events";
             renderEngine();
         }
 
-        window.toggleWizardAttendance = function(userId) {
-            if(temporaryWizardAttendees[userId]) delete temporaryWizardAttendees[userId];
-            else temporaryWizardAttendees[userId] = true;
-            renderWizardUI();
-        }
-
-        function renderWizardUI() {
+        function renderCreatorPickerUI() {
             const target = document.getElementById('creation-users-target');
             if(!target) return;
             target.innerHTML = '';
-            const usersList = Object.values(db.users);
+            const usersList = Object.values(db.usuarios);
             if (usersList.length === 0) {
                 target.innerHTML = `
                     <p style="font-size:13px; color:#dc2626; font-weight:700; margin-bottom:8px;">⚠️ Registra algún amigo primero desde el botón 👤 superior.</p>
                 `;
             } else {
                 usersList.forEach(u => {
-                    const isSelected = temporaryWizardAttendees[u.id];
                     const div = document.createElement('div');
-                    div.className = `btn-selection-row ${isSelected ? 'selected' : ''}`;
+                    div.className = 'btn-selection-row';
                     div.style.borderLeft = `14px solid ${u.color}`;
-                    div.onclick = () => window.toggleWizardAttendance(u.id);
-                    div.innerHTML = `<span>👤 ${u.name}</span> <span>${isSelected ? '✅ Apuntado' : '✕ Excluido'}</span>`;
+                    div.onclick = () => window.confirmAndPublishEvent(u.id);
+                    div.innerHTML = `<span>👤 ${u.nombre}</span> <span>Elegir ➔</span>`;
                     target.appendChild(div);
                 });
             }
         }
 
-        window.confirmAndPublishEvent = function() {
-            const id = "ev_" + Date.now();
-            db.events[id] = { id: id, name: pendingEventName, attendees: { ...temporaryWizardAttendees } };
+        window.confirmAndPublishEvent = async function(creatorId) {
+            const created = await sbInsert('eventos', { nombre: pendingEventName, usuario_id: creatorId });
+            if(!created) return;
             document.getElementById('event-input').value = '';
             document.getElementById('creation-attendees-screen').classList.remove('active');
-            db.activeEventId = id;
+            activeEventId = created.id;
+            activeUserId = creatorId;
+            localStorage.setItem('rs_active_event', created.id);
+            localStorage.setItem('rs_active_user', creatorId);
             currentTab = "general";
-            syncPush();
-        }
-
-        // --- VIAJEROS DENTRO DEL VIAJE ---
-        window.openExtraMemberPopup = function() {
-            if (!db.activeEventId || !db.events[db.activeEventId]) return;
-            const currentEvent = db.events[db.activeEventId];
-            if (!currentEvent.attendees) currentEvent.attendees = {};
-
-            const target = document.getElementById('extra-members-modal-target');
-            if(!target) return;
-            target.innerHTML = '';
-
-            Object.values(db.users).forEach(u => {
-                const isGoing = currentEvent.attendees[u.id];
-                const btn = document.createElement('button');
-                btn.className = `btn-selection-row ${isGoing ? 'selected' : ''}`;
-                btn.style.borderLeft = `14px solid ${u.color}`;
-                btn.onclick = () => {
-                    if (isGoing) {
-                        if(u.id === activeUserId) activeUserId = null;
-                        delete currentEvent.attendees[u.id];
-                    } else {
-                        currentEvent.attendees[u.id] = true;
-                    }
-                    syncPush();
-                    window.openExtraMemberPopup();
-                };
-                btn.innerHTML = `<span>👤 ${u.name}</span> <span>${isGoing ? '✅ Asiste' : '✕ Añadir'}</span>`;
-                target.appendChild(btn);
-            });
-            document.getElementById('extra-member-picker-popup').classList.add('active');
-        }
-
-        window.closeExtraMemberPopup = function() {
-            document.getElementById('extra-member-picker-popup').classList.remove('active');
             checkAuthenticationState();
             renderEngine();
         }
 
-        // --- TECLADO NUMÉRICO (LISTA GENERAL) ---
+        // ════════════════════════════════════════════════════════════
+        // TECLADO NUMÉRICO (CANTIDAD DESEADA)
+        // ════════════════════════════════════════════════════════════
         window.openQtyKeyboardPopup = function(productId, event) {
-            event.stopPropagation(); 
-            const prod = db.products[productId];
+            event.stopPropagation();
+            const prod = db.productos[productId];
             if(!prod) return;
             selectedProductForQtyId = productId;
-            document.getElementById('qty-popup-title').innerText = `Unidades: ${prod.name}`;
+            document.getElementById('qty-popup-title').innerText = `Unidades: ${prod.nombre}`;
             document.getElementById('qty-keyboard-popup').classList.add('active');
         }
 
@@ -664,43 +707,43 @@
             selectedProductForQtyId = "";
         }
 
-        window.selectQtyFromKeyboard = function(num) {
-            if(selectedProductForQtyId && db.products[selectedProductForQtyId]) {
-                db.products[selectedProductForQtyId].quantity = num;
-                if((db.products[selectedProductForQtyId].boughtQuantity || 0) > num) {
-                    db.products[selectedProductForQtyId].boughtQuantity = num;
-                }
-                syncPush();
+        window.selectQtyFromKeyboard = async function(num) {
+            const prod = db.productos[selectedProductForQtyId];
+            if(prod) {
+                const patch = { cantidad_deseada: num };
+                if((prod.cantidad_comprada || 0) > num) patch.cantidad_comprada = num;
+                await sbUpdate('productos', prod.id, patch);
             }
             window.closeQtyKeyboard();
         }
 
-        window.selectQtyManualCustom = function() {
-            if(!selectedProductForQtyId || !db.products[selectedProductForQtyId]) return;
-            const prod = db.products[selectedProductForQtyId];
-            const val = prompt(`Cantidad para "${prod.name}":`, prod.quantity || 1);
+        window.selectQtyManualCustom = async function() {
+            const prod = db.productos[selectedProductForQtyId];
+            if(!prod) return;
+            const val = prompt(`Cantidad para "${prod.nombre}":`, prod.cantidad_deseada || 1);
             if(val !== null) {
                 const parsed = parseInt(val, 10);
-                prod.quantity = isNaN(parsed) || parsed < 1 ? 1 : parsed;
-                if(prod.boughtQuantity > prod.quantity) {
-                    prod.boughtQuantity = prod.quantity;
-                }
-                syncPush();
+                const nueva = isNaN(parsed) || parsed < 1 ? 1 : parsed;
+                const patch = { cantidad_deseada: nueva };
+                if((prod.cantidad_comprada || 0) > nueva) patch.cantidad_comprada = nueva;
+                await sbUpdate('productos', prod.id, patch);
             }
             window.closeQtyKeyboard();
         }
 
-        // --- 🌟 NUEVO MOTOR INTEGRADO: POP-UP DE CANTIDAD EXCLUSIVO PARA COMPRAS PARCIALES EN EL CARRITO ---
+        // ════════════════════════════════════════════════════════════
+        // POP-UP DE COMPRA PARCIAL (CANTIDAD COMPRADA) EN EL CARRITO
+        // ════════════════════════════════════════════════════════════
         window.openCartQtyPopup = function(productId, event) {
-            event.stopPropagation(); // Evita que se marque el checkbox general de la tarjeta
-            const prod = db.products[productId];
+            event.stopPropagation();
+            const prod = db.productos[productId];
             if(!prod) return;
 
             cartQtyTargetProductId = productId;
-            cartQtyCurrentValue = prod.boughtQuantity || 0;
-            cartQtyMaxValue = prod.quantity || 1;
+            cartQtyCurrentValue = prod.cantidad_comprada || 0;
+            cartQtyMaxValue = prod.cantidad_deseada || 1;
 
-            document.getElementById('cart-qty-title').innerText = `🧺 Compra parcial: ${prod.name}`;
+            document.getElementById('cart-qty-title').innerText = `🧺 Compra parcial: ${prod.nombre}`;
             updateCartQtyPopupUI();
             document.getElementById('cart-qty-popup').classList.add('active');
         }
@@ -708,7 +751,7 @@
         function updateCartQtyPopupUI() {
             document.getElementById('cart-qty-display').innerText = cartQtyCurrentValue;
             const missing = Math.max(0, cartQtyMaxValue - cartQtyCurrentValue);
-            
+
             let balanceHtml = `Total requerido: <strong>${cartQtyMaxValue}</strong><br>`;
             if (cartQtyCurrentValue >= cartQtyMaxValue) {
                 balanceHtml += `<span style="color:#16a34a; font-weight:800; display:block; margin-top:6px;">✓ ¡Vas a llevar todo en esta tienda!</span>`;
@@ -723,7 +766,7 @@
         window.adjustCartQty = function(amount) {
             cartQtyCurrentValue += amount;
             if(cartQtyCurrentValue < 0) cartQtyCurrentValue = 0;
-            if(cartQtyCurrentValue > cartQtyMaxValue) cartQtyCurrentValue = cartQtyMaxValue; // Tope máximo requerido
+            if(cartQtyCurrentValue > cartQtyMaxValue) cartQtyCurrentValue = cartQtyMaxValue;
             updateCartQtyPopupUI();
         }
 
@@ -732,76 +775,60 @@
             cartQtyTargetProductId = null;
         }
 
-        window.saveCartQtyChanges = function() {
-            if(!cartQtyTargetProductId || !db.products[cartQtyTargetProductId]) return;
-            const prod = db.products[cartQtyTargetProductId];
-            
-            prod.boughtQuantity = cartQtyCurrentValue;
-            // Si coge todo, se auto-chequea completo. Si no, queda incompleto mostrando lo restante.
-            if(cartQtyCurrentValue >= (prod.quantity || 1)) {
-                prod.checked = true;
-            } else {
-                prod.checked = false;
-            }
-            
-            syncPush();
+        window.saveCartQtyChanges = async function() {
+            if(!cartQtyTargetProductId || !db.productos[cartQtyTargetProductId]) return;
+            await sbUpdate('productos', cartQtyTargetProductId, { cantidad_comprada: cartQtyCurrentValue });
             window.closeCartQtyPopup();
         }
 
-        // --- OPERACIONES GENERALES ---
-        window.addSubgroup = function() {
+        // ════════════════════════════════════════════════════════════
+        // OPERACIONES GENERALES (GRUPOS Y PRODUCTOS)
+        // ════════════════════════════════════════════════════════════
+        window.addSubgroup = async function() {
             const el = document.getElementById('subgroup-input');
-            if(!el.value.trim() || !db.activeEventId) return;
-            const id = "sg_" + Date.now();
-            db.subgroups[id] = { id: id, eventId: db.activeEventId, name: el.value.trim() };
+            if(!el.value.trim() || !activeEventId) return;
+            await sbInsert('grupos', { nombre: el.value.trim(), evento_id: activeEventId, usuario_id: activeUserId });
             el.value = '';
-            syncPush();
         }
 
-        window.addProductInline = function(subgroupId) {
-            const el = document.getElementById(`inline-input-${subgroupId}`);
+        window.addProductInline = async function(grupoId) {
+            const el = document.getElementById(`inline-input-${grupoId}`);
             if(!el || !el.value.trim()) return;
-            const id = "prod_" + Date.now();
-            db.products[id] = { id: id, subgroupId: subgroupId, name: el.value.trim(), assignedTo: null, quantity: 1, boughtQuantity: 0, checked: false };
+            await sbInsert('productos', { nombre: el.value.trim(), grupo_id: grupoId, usuario_id: null, cantidad_deseada: 1, cantidad_comprada: 0 });
             el.value = '';
-            syncPush();
         }
 
-        window.toggleClaim = function(productId) {
-            const prod = db.products[productId];
+        window.toggleClaim = async function(productId) {
+            const prod = db.productos[productId];
             if(!prod || !activeUserId) return;
-            if(prod.assignedTo === activeUserId) {
-                prod.assignedTo = null;
-                prod.checked = false; 
-                prod.boughtQuantity = 0;
+            if(prod.usuario_id === activeUserId) {
+                await sbUpdate('productos', productId, { usuario_id: null, cantidad_comprada: 0 });
             } else {
-                prod.assignedTo = activeUserId;
-            }
-            syncPush();
-        }
-
-        window.toggleCartCheck = function(productId) {
-            const prod = db.products[productId];
-            if(prod) {
-                prod.checked = !prod.checked;
-                if(prod.checked) {
-                    prod.boughtQuantity = prod.quantity || 1;
-                } else {
-                    prod.boughtQuantity = 0;
-                }
-                syncPush();
+                await sbUpdate('productos', productId, { usuario_id: activeUserId });
             }
         }
 
-        // --- MOTOR CENTRAL DE PROYECCIÓN DE PANTALLAS ---
+        window.toggleCartCheck = async function(productId) {
+            const prod = db.productos[productId];
+            if(!prod) return;
+            if(isProductChecked(prod)) {
+                await sbUpdate('productos', productId, { cantidad_comprada: 0 });
+            } else {
+                await sbUpdate('productos', productId, { cantidad_comprada: prod.cantidad_deseada || 1 });
+            }
+        }
+
+        // ════════════════════════════════════════════════════════════
+        // MOTOR CENTRAL DE PROYECCIÓN DE PANTALLAS
+        // ════════════════════════════════════════════════════════════
         function renderEngine() {
-            const currentEvent = db.events[db.activeEventId];
-            const activeUserObj = db.users[activeUserId];
+            const currentEvent = db.eventos[activeEventId];
+            const activeUserObj = db.usuarios[activeUserId];
             const actionsTarget = document.getElementById('header-actions-container');
             if(!actionsTarget) return;
             actionsTarget.innerHTML = '';
 
-            // 1. CONTROL DE NAVEGACIÓN
+            // 1. NAVEGACIÓN
             if (currentTab === 'events') {
                 document.getElementById('view-events').classList.add('active');
                 document.getElementById('view-general').classList.remove('active');
@@ -811,11 +838,10 @@
                 document.getElementById('view-events').classList.remove('active');
                 document.getElementById('view-general').classList.add('active');
                 document.getElementById('view-cart').classList.remove('active');
-                
+
                 const cartColor = activeUserObj ? activeUserObj.color : 'rgba(255,255,255,0.2)';
                 actionsTarget.innerHTML = `
                     <button class="btn-back-escape" onclick="window.goToEventsHome()">◀ Escapadas</button>
-                    <button class="btn-round-nav" onclick="window.openExtraMemberPopup()" title="Asistentes" style="font-size:15px;">👥</button>
                     <button class="btn-round-nav" onclick="window.goToCartView()" title="Mi Carrito" style="background-color:${cartColor}; border-color:#fff; font-size:16px;">🧺</button>
                 `;
             } else if (currentTab === 'cart') {
@@ -825,34 +851,26 @@
                 actionsTarget.innerHTML = `<button class="btn-back-escape" onclick="window.backToGeneralList()">◀ Lista</button>`;
             }
 
-            // 2. MODAL LOG-IN
+            // 2. MODAL LOG-IN (cualquier amigo global puede entrar a la escapada)
             const loginTarget = document.getElementById('login-users-target');
             if(loginTarget && currentEvent) {
                 loginTarget.innerHTML = '';
-                let renderedAttendees = 0;
-                Object.values(db.users).forEach(u => {
-                    if (currentEvent.attendees && currentEvent.attendees[u.id]) {
-                        renderedAttendees++;
+                const allUsers = Object.values(db.usuarios);
+                if(allUsers.length === 0) {
+                    loginTarget.innerHTML = `<div style="color:var(--text-muted); font-size:13px; margin-bottom:12px; text-align:center;">No hay amigos guardados todavía.</div>`;
+                } else {
+                    allUsers.forEach(u => {
                         const btn = document.createElement('button');
                         btn.className = 'btn-selection-row';
                         btn.style.borderLeft = `14px solid ${u.color}`;
                         btn.onclick = () => window.loginAsUser(u.id);
-                        btn.innerHTML = `<span>👤 ${u.name}</span> <span>Seleccionar ➔</span>`;
+                        btn.innerHTML = `<span>👤 ${u.nombre}</span> <span>Seleccionar ➔</span>`;
                         loginTarget.appendChild(btn);
-                    }
-                });
-                if(renderedAttendees === 0) {
-                    loginTarget.innerHTML = `<div style="color:var(--text-muted); font-size:13px; margin-bottom:12px; text-align:center;">No hay amigos configurados como asistentes.</div>`;
+                    });
                 }
-                const btnExtra = document.createElement('button');
-                btnExtra.className = 'btn-selection-row btn-add-extra';
-                btnExtra.onclick = () => window.openExtraMemberPopup();
-                btnExtra.innerHTML = `<span>⚙️ Añadir/Quitar asistentes en este viaje</span>`;
-                loginTarget.appendChild(btnExtra);
-                
                 const tripBannerText = document.getElementById('active-trip-banner-text');
                 if(tripBannerText) {
-                    tripBannerText.innerText = `🏡 Viaje: ${currentEvent.name} (${activeUserObj ? activeUserObj.name : 'Sin Usuario'})`;
+                    tripBannerText.innerText = `🏡 Viaje: ${currentEvent.nombre} (${activeUserObj ? activeUserObj.nombre : 'Sin Usuario'})`;
                 }
             }
 
@@ -860,7 +878,7 @@
             const eventsTarget = document.getElementById('events-list-target');
             if(eventsTarget) {
                 eventsTarget.innerHTML = '';
-                const allTrips = Object.values(db.events);
+                const allTrips = Object.values(db.eventos);
                 if(allTrips.length === 0) {
                     eventsTarget.innerHTML = '<div class="empty-illustration"><span>🏕️</span>No hay ningún viaje creado todavía.</div>';
                 } else {
@@ -869,12 +887,12 @@
                         div.className = 'interactive-item';
                         div.style.cursor = 'pointer';
                         div.onclick = () => window.selectActiveEvent(ev.id);
-                        const safeName = ev.name.replace(/'/g, "\\'");
-                        const totalGoing = ev.attendees ? Object.keys(ev.attendees).length : 0;
+                        const safeName = (ev.nombre||'').replace(/'/g, "\\'");
+                        const creador = db.usuarios[ev.usuario_id];
                         div.innerHTML = `
                             <div class="item-label-group">
-                                <span class="item-main-text">${ev.name}</span>
-                                <span class="item-sub-text">${totalGoing} amigos confirmados</span>
+                                <span class="item-main-text">${ev.nombre}</span>
+                                <span class="item-sub-text">${creador ? 'Creado por ' + creador.nombre : 'Escapada'}</span>
                             </div>
                             <div style="display:flex; align-items:center; gap:8px;">
                                 <button class="btn-pill-claim" style="border-color:#dc2626; color:#dc2626;" onclick="window.triggerEventDeleteFlow('${ev.id}', '${safeName}', event)">🗑️</button>
@@ -890,42 +908,43 @@
             const generalTarget = document.getElementById('general-list-target');
             if(generalTarget) {
                 generalTarget.innerHTML = '';
-                const activeSubgroups = Object.values(db.subgroups).filter(s => s.eventId === db.activeEventId);
-                if(activeSubgroups.length === 0 && currentTab === 'general') {
+                const activeGrupos = Object.values(db.grupos).filter(g => g.evento_id === activeEventId);
+                if(activeGrupos.length === 0 && currentTab === 'general') {
                     generalTarget.innerHTML = '<div class="empty-illustration"><span>📦</span>No hay categorías en este viaje. Crea la primera arriba.</div>';
                 }
-                activeSubgroups.forEach(sg => {
+                activeGrupos.forEach(g => {
                     const card = document.createElement('div');
                     card.className = 'subgroup-card';
                     let html = `
-                        <div class="subgroup-banner-title">📦 ${sg.name}</div>
+                        <div class="subgroup-banner-title">📦 ${g.nombre}</div>
                         <div class="inline-add-product-form">
-                            <input type="text" id="inline-input-${sg.id}" placeholder="Escribir artículo...">
-                            <button class="btn-action" onclick="window.addProductInline('${sg.id}')">+</button>
+                            <input type="text" id="inline-input-${g.id}" placeholder="Escribir artículo...">
+                            <button class="btn-action" onclick="window.addProductInline('${g.id}')">+</button>
                         </div>
                         <div>
                     `;
-                    const prods = Object.values(db.products).filter(p => p.subgroupId === sg.id);
+                    const prods = Object.values(db.productos).filter(p => p.grupo_id === g.id);
                     prods.forEach(p => {
                         let borderStyle = `border-left: 14px solid #cbd5e1;`;
                         let status = 'Libre 🔓'; let bTxt = 'Lo compro'; let cssClass = ''; let badge = '';
-                        if(p.assignedTo) {
-                            const u = db.users[p.assignedTo];
+                        const checked = isProductChecked(p);
+                        if(p.usuario_id) {
+                            const u = db.usuarios[p.usuario_id];
                             const c = u ? u.color : "#cbd5e1";
                             borderStyle = `border-left: 14px solid ${c};`;
-                            if(p.checked) { cssClass = 'already-bought'; status = 'Comprado ✓'; }
+                            if(checked) { cssClass = 'already-bought'; status = 'Comprado ✓'; }
                             else status = 'Asignado';
-                            badge = `<span class="user-color-badge" style="background-color:${c};">${u ? u.name : 'Amigo'}</span>`;
-                            bTxt = (p.assignedTo === activeUserId) ? 'Soltar' : 'Quitar';
+                            badge = `<span class="user-color-badge" style="background-color:${c};">${u ? u.nombre : 'Amigo'}</span>`;
+                            bTxt = (p.usuario_id === activeUserId) ? 'Soltar' : 'Quitar';
                         }
                         html += `
                             <div class="interactive-item ${cssClass}" style="${borderStyle}">
                                 <div class="item-label-group">
-                                    <span class="item-main-text">${p.name}</span>
+                                    <span class="item-main-text">${p.nombre}</span>
                                     <span class="item-sub-text">${status} ${badge}</span>
                                 </div>
                                 <div style="display:flex; align-items:center;">
-                                    <button class="btn-quantity-picker" onclick="window.openQtyKeyboardPopup('${p.id}', event)">x${p.quantity || 1}</button>
+                                    <button class="btn-quantity-picker" onclick="window.openQtyKeyboardPopup('${p.id}', event)">x${p.cantidad_deseada || 1}</button>
                                     <button class="btn-pill-claim" onclick="window.toggleClaim('${p.id}')">${bTxt}</button>
                                 </div>
                             </div>
@@ -937,45 +956,44 @@
                 });
             }
 
-            // 5. RENDER CARRITO DE COMPRA (SEPARADO POR SUBGRUPOS CON CANTIDADES INTELIGENTES)
+            // 5. RENDER CARRITO DE COMPRA (SEPARADO POR GRUPOS)
             const cartTarget = document.getElementById('cart-list-target');
             if(cartTarget && activeUserObj) {
                 cartTarget.innerHTML = '';
                 const cartUsernameTitle = document.getElementById('cart-username-title');
-                if(cartUsernameTitle) cartUsernameTitle.innerText = activeUserObj.name;
+                if(cartUsernameTitle) cartUsernameTitle.innerText = activeUserObj.nombre;
 
-                const activeSubgroups = Object.values(db.subgroups).filter(s => s.eventId === db.activeEventId);
+                const activeGrupos = Object.values(db.grupos).filter(g => g.evento_id === activeEventId);
                 let absoluteTotalItemsInCart = 0;
 
-                activeSubgroups.forEach(sg => {
-                    const myCartItemsInSubgroup = Object.values(db.products).filter(p => {
-                        return p.subgroupId === sg.id && p.assignedTo === activeUserId;
-                    });
+                activeGrupos.forEach(g => {
+                    const myCartItemsInGroup = Object.values(db.productos).filter(p => p.grupo_id === g.id && p.usuario_id === activeUserId);
 
-                    if (myCartItemsInSubgroup.length > 0) {
-                        absoluteTotalItemsInCart += myCartItemsInSubgroup.length;
-                        
+                    if (myCartItemsInGroup.length > 0) {
+                        absoluteTotalItemsInCart += myCartItemsInGroup.length;
+
                         const sgCardInCart = document.createElement('div');
                         sgCardInCart.className = 'subgroup-card';
                         sgCardInCart.style.marginBottom = '16px';
-                        sgCardInCart.innerHTML = `<div class="subgroup-banner-title" style="color:var(--primary); font-size:14px; margin-bottom:12px; font-weight:800;">📦 Sección: ${sg.name}</div>`;
-                        
+                        sgCardInCart.innerHTML = `<div class="subgroup-banner-title" style="color:var(--primary); font-size:14px; margin-bottom:12px; font-weight:800;">📦 Sección: ${g.nombre}</div>`;
+
                         const itemsContainer = document.createElement('div');
 
-                        myCartItemsInSubgroup.forEach(p => {
-                            const total = p.quantity || 1;
-                            const bought = p.boughtQuantity || 0;
+                        myCartItemsInGroup.forEach(p => {
+                            const total = p.cantidad_deseada || 1;
+                            const bought = p.cantidad_comprada || 0;
                             const missing = Math.max(0, total - bought);
-                            
+                            const checked = isProductChecked(p);
+
                             const card = document.createElement('div');
-                            card.className = `cart-checkbox-card ${p.checked ? 'checked' : ''}`;
+                            card.className = `cart-checkbox-card ${checked ? 'checked' : ''}`;
                             card.style.borderLeftColor = activeUserObj.color;
                             card.style.padding = '14px 16px';
                             card.style.marginBottom = '8px';
                             card.onclick = () => window.toggleCartCheck(p.id);
-                            
+
                             let qtyStatusText = "";
-                            if (p.checked) {
+                            if (checked) {
                                 qtyStatusText = `<span style="color:#16a34a; font-weight:700;">¡Todo comprado! (${bought}/${total})</span>`;
                             } else if (bought > 0) {
                                 qtyStatusText = `<span style="color:var(--accent); font-weight:700;">Llevas: ${bought} | Faltan: ${missing}</span>`;
@@ -985,7 +1003,7 @@
 
                             card.innerHTML = `
                                 <div class="item-label-group">
-                                    <span class="item-main-text">${p.name}</span>
+                                    <span class="item-main-text">${p.nombre}</span>
                                     <span class="item-sub-text">${qtyStatusText}</span>
                                 </div>
                                 <div style="display:flex; align-items:center; gap:12px;">
@@ -997,7 +1015,7 @@
                             `;
                             itemsContainer.appendChild(card);
                         });
-                        
+
                         sgCardInCart.appendChild(itemsContainer);
                         cartTarget.appendChild(sgCardInCart);
                     }
@@ -1009,29 +1027,8 @@
             }
         }
 
-        renderEngine();
+        subscribeRealtime();
+        loadAll();
     </script>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>RuralShare</title>
-    <!-- Cargar la biblioteca de Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-</head>
-<body>
-
-    <script type="module">
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
-
-        const supabaseUrl = 'https://yikzcchxdpgeztuifyzs.supabase.co';
-        const supabaseAnonKey = 'sb_publishable_478tpkZDqy91QKd2E9pmqQ_ZRsSmEVI';
-
-        const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-        // Tu código de la app continúa aquí
-        console.log("Supabase inicializado correctamente");
-    </script>
-</script>
 </body>
 </html>
