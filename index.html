@@ -25,7 +25,7 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        body { background-color: var(--bg-app); color: var(--text-dark); display: flex; flex-direction: column; min-height: 100vh; padding-bottom: max(30px, env(safe-area-inset-bottom)); }
+        body { background-color: var(--bg-app); color: var(--text-dark); display: flex; flex-direction: column; min-height: 100vh; padding-bottom: max(30px, env(safe-area-inset-bottom)); overflow-x: hidden; width: 100%; }
         
         /* OVERLAYS / MODALES TÁCTILES */
         .app-overlay { 
@@ -64,7 +64,7 @@
         .app-header { background: linear-gradient(135deg, #112a1d 0%, #1b4332 100%); color: white; padding: max(16px, env(safe-area-inset-top)) 20px 16px; border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg); box-shadow: var(--shadow-md); position: sticky; top: 0; z-index: 100; }
         .header-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
         .logo { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; cursor: pointer; flex-shrink: 0; }
-        .header-actions { display: flex; align-items: center; gap: 8px; min-height: 40px; }
+        .header-actions { display: flex; align-items: center; gap: 8px; min-height: 40px; min-width: 0; flex-shrink: 1; }
 
         @media (max-width: 380px) {
             .app-header { padding-left: 14px; padding-right: 14px; }
@@ -87,10 +87,10 @@
         .card { background: var(--bg-card); border-radius: var(--border-radius-lg); padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow-sm); border: 1px solid rgba(0, 0, 0, 0.04); }
         .card-title { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #1b4332; margin-bottom: 14px; }
         
-        .input-row { display: flex; gap: 8px; }
-        input[type="text"] { flex: 1; padding: 12px 16px; border: 2px solid #eae6df; border-radius: var(--border-radius-sm); font-size: 16px; background-color: #faf9f6; color: var(--text-dark); }
+        .input-row { display: flex; gap: 8px; min-width: 0; }
+        input[type="text"] { flex: 1; min-width: 0; padding: 12px 16px; border: 2px solid #eae6df; border-radius: var(--border-radius-sm); font-size: 16px; background-color: #faf9f6; color: var(--text-dark); }
         input[type="text"]:focus { outline: none; border-color: #1b4332; background-color: white; }
-        .btn-action { padding: 12px 18px; background-color: #1b4332; color: white; border: none; border-radius: var(--border-radius-sm); font-weight: 700; font-size: 15px; cursor: pointer; }
+        .btn-action { padding: 12px 18px; background-color: #1b4332; color: white; border: none; border-radius: var(--border-radius-sm); font-weight: 700; font-size: 15px; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
         
         .subgroup-card { background: var(--bg-card); border-radius: var(--border-radius-lg); padding: 20px; margin-bottom: 24px; box-shadow: var(--shadow-sm); border: 1px solid rgba(0, 0, 0, 0.05); }
         .subgroup-banner-title { font-size: 16px; font-weight: 800; color: var(--accent); margin-bottom: 14px; }
@@ -222,8 +222,9 @@
         </section>
 
         <section id="view-general" class="view-section">
-            <div style="margin-bottom: 15px; background: #eae6df; padding: 10px 14px; border-radius: var(--border-radius-sm); font-size: 13px; font-weight: 700;">
-                <span id="active-trip-banner-text">📍 Viaje</span>
+            <div style="margin-bottom: 15px; background: #eae6df; padding: 10px 14px; border-radius: var(--border-radius-sm); font-size: 13px; font-weight: 700; display:flex; align-items:center; gap:10px;">
+                <button class="btn-back-escape" style="background:#fff; border:1px solid #cbd5e1; color:var(--text-dark); flex-shrink:0; padding:6px 10px;" onclick="window.goToEventsHome()">◀</button>
+                <span id="active-trip-banner-text" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0;">📍 Viaje</span>
             </div>
             <div class="card">
                 <div class="card-title">➕ Añadir Categoría / Grupo</div>
@@ -287,8 +288,7 @@
 
         let editingUserId = null;
         let selectedEditingColor = "";
-        let deleteTargetEventId = null;
-        let deleteTargetEventName = "";
+        let deleteTarget = { type: null, id: null, name: "" };
 
         let cartQtyTargetProductId = null;
         let cartQtyCurrentValue = 0;
@@ -437,6 +437,7 @@
             currentTab = "events";
             document.getElementById('login-screen').classList.remove('active');
             renderEngine();
+            pushNavState();
         }
 
         window.selectActiveEvent = function(id) {
@@ -446,6 +447,7 @@
             localStorage.removeItem('rs_active_user');
             currentTab = "general";
             renderEngine();
+            pushNavState();
         }
 
         window.loginAsUser = function(userId) {
@@ -469,6 +471,7 @@
         window.backToGeneralList = function() {
             currentTab = "general";
             renderEngine();
+            pushNavState();
         }
 
         window.goToCartView = function() {
@@ -478,6 +481,7 @@
             }
             currentTab = "cart";
             renderEngine();
+            pushNavState();
         }
 
         // ════════════════════════════════════════════════════════════
@@ -597,31 +601,61 @@
         }
 
         // ════════════════════════════════════════════════════════════
-        // ELIMINAR ESCAPADAS (cascada manual: productos → grupos → evento)
+        // ELIMINAR (escapadas y grupos con cascada + doble aviso; productos con aviso simple)
         // ════════════════════════════════════════════════════════════
         window.triggerEventDeleteFlow = function(eventId, eventName, event) {
             event.stopPropagation();
-            deleteTargetEventId = eventId;
-            deleteTargetEventName = eventName;
+            deleteTarget = { type: 'event', id: eventId, name: eventName };
             window.renderDeleteModalPhase(1);
+            document.getElementById('delete-confirm-popup').classList.add('active');
+        }
+
+        window.triggerGroupDeleteFlow = function(groupId, groupName, event) {
+            event.stopPropagation();
+            deleteTarget = { type: 'group', id: groupId, name: groupName };
+            window.renderDeleteModalPhase(1);
+            document.getElementById('delete-confirm-popup').classList.add('active');
+        }
+
+        window.triggerProductDeleteFlow = function(productId, productName, event) {
+            event.stopPropagation();
+            deleteTarget = { type: 'product', id: productId, name: productName };
+            window.renderDeleteModalPhase('product');
             document.getElementById('delete-confirm-popup').classList.add('active');
         }
 
         window.closeDeleteModal = function() {
             document.getElementById('delete-confirm-popup').classList.remove('active');
-            deleteTargetEventId = null;
-            deleteTargetEventName = "";
+            deleteTarget = { type: null, id: null, name: "" };
         }
 
         window.renderDeleteModalPhase = function(phase) {
             const container = document.getElementById('delete-modal-body');
             if(!container) return;
             container.innerHTML = '';
+
+            if (phase === 'product') {
+                container.innerHTML = `
+                    <div style="font-weight:800; font-size:16px; color:#b91c1c; margin-bottom:6px; text-align:left;">🗑️ ¿Eliminar producto?</div>
+                    <div style="font-size:13.5px; color:var(--text-dark); margin-bottom:18px; text-align:left; line-height:1.4;">
+                        ¿Eliminar <strong>"${deleteTarget.name}"</strong> de la lista? No se puede deshacer.
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn-key key-wide" style="flex:1; margin:0;" onclick="window.closeDeleteModal()">No</button>
+                        <button class="btn-action" style="flex:1; background-color:#dc2626;" onclick="window.executeDeletion()">Sí, eliminar</button>
+                    </div>
+                `;
+                return;
+            }
+
+            const isGroup = deleteTarget.type === 'group';
+            const label = isGroup ? 'grupo' : 'escapada';
+
             if (phase === 1) {
                 container.innerHTML = `
-                    <div style="font-weight:800; font-size:16px; color:#b91c1c; margin-bottom:6px; text-align:left;">🗑️ ¿Eliminar Escapada?</div>
+                    <div style="font-weight:800; font-size:16px; color:#b91c1c; margin-bottom:6px; text-align:left;">🗑️ ¿Eliminar ${isGroup ? 'Grupo' : 'Escapada'}?</div>
                     <div style="font-size:13.5px; color:var(--text-dark); margin-bottom:18px; text-align:left; line-height:1.4;">
-                        ¿Eliminar permanentemente la escapada <strong>"${deleteTargetEventName}"</strong>?
+                        ¿Eliminar permanentemente ${isGroup ? 'el grupo' : 'la escapada'} <strong>"${deleteTarget.name}"</strong>${isGroup ? ' y todos sus productos' : ''}?
                     </div>
                     <div style="display:flex; gap:10px;">
                         <button class="btn-key key-wide" style="flex:1; margin:0;" onclick="window.closeDeleteModal()">No</button>
@@ -632,7 +666,7 @@
                 container.innerHTML = `
                     <div style="font-weight:800; font-size:16px; color:#7f1d1d; margin-bottom:8px; text-align:left;">🚨 Confirmación de Seguridad</div>
                     <div style="font-size:12.5px; color:var(--text-muted); margin-bottom:16px; text-align:left; line-height:1.4;">
-                        Esta acción borrará todas las listas vinculadas a esta escapada de forma irreversible en la nube.
+                        Esta acción borrará ${isGroup ? 'todos los productos de este grupo' : 'todas las listas vinculadas a esta escapada'} de forma irreversible en la nube.
                     </div>
                     <label style="display:flex; align-items:center; gap:10px; background:#fff5f5; border:1px solid #fee2e2; padding:12px; border-radius:var(--border-radius-sm); margin-bottom:18px; text-align:left; cursor:pointer;">
                         <input type="checkbox" id="security-lock-checkbox" style="width:20px; height:20px;" onchange="window.toggleFinalDeleteButton(this.checked)">
@@ -640,7 +674,7 @@
                     </label>
                     <div style="display:flex; gap:10px;">
                         <button class="btn-key key-wide" style="flex:1; margin:0;" onclick="window.closeDeleteModal()">Cancelar</button>
-                        <button id="final-delete-submit-btn" class="btn-action" style="flex:1; background-color:#7f1d1d; opacity:0.25; pointer-events:none;" onclick="window.executeEventDeletionCloud()">BORRAR AHORA</button>
+                        <button id="final-delete-submit-btn" class="btn-action" style="flex:1; background-color:#7f1d1d; opacity:0.25; pointer-events:none;" onclick="window.executeDeletion()">BORRAR AHORA</button>
                     </div>
                 `;
             }
@@ -654,26 +688,39 @@
             }
         }
 
-        window.executeEventDeletionCloud = async function() {
-            if(!deleteTargetEventId) return;
-            const grupoIds = Object.values(db.grupos).filter(g => g.evento_id === deleteTargetEventId).map(g => g.id);
+        window.executeDeletion = async function() {
+            const { type, id } = deleteTarget;
+            if(!type || !id) return;
 
-            if(grupoIds.length > 0){
-                const { error: e1 } = await supabase.from('productos').delete().in('grupo_id', grupoIds);
+            if(type === 'product'){
+                await sbDelete('productos', id);
+            } else if(type === 'group'){
+                const { error: e1 } = await supabase.from('productos').delete().eq('grupo_id', id);
                 if(e1) console.error(e1);
+                const { error: e2 } = await supabase.from('grupos').delete().eq('id', id);
+                if(e2) console.error(e2);
+                Object.values(db.productos).forEach(p => { if(p.grupo_id === id) delete db.productos[p.id]; });
+                delete db.grupos[id];
+                renderEngine();
+            } else if(type === 'event'){
+                const grupoIds = Object.values(db.grupos).filter(g => g.evento_id === id).map(g => g.id);
+                if(grupoIds.length > 0){
+                    const { error: e1 } = await supabase.from('productos').delete().in('grupo_id', grupoIds);
+                    if(e1) console.error(e1);
+                }
+                const { error: e2 } = await supabase.from('grupos').delete().eq('evento_id', id);
+                if(e2) console.error(e2);
+                const { error: e3 } = await supabase.from('eventos').delete().eq('id', id);
+                if(e3) console.error(e3);
+
+                Object.values(db.productos).forEach(p => { if(grupoIds.includes(p.grupo_id)) delete db.productos[p.id]; });
+                grupoIds.forEach(gid => delete db.grupos[gid]);
+                delete db.eventos[id];
+
+                if(activeEventId === id) window.goToEventsHome();
+                renderEngine();
             }
-            const { error: e2 } = await supabase.from('grupos').delete().eq('evento_id', deleteTargetEventId);
-            if(e2) console.error(e2);
-            const { error: e3 } = await supabase.from('eventos').delete().eq('id', deleteTargetEventId);
-            if(e3) console.error(e3);
 
-            // Limpieza optimista de la caché local (el realtime también lo confirmará)
-            Object.values(db.productos).forEach(p => { if(grupoIds.includes(p.grupo_id)) delete db.productos[p.id]; });
-            grupoIds.forEach(gid => delete db.grupos[gid]);
-            delete db.eventos[deleteTargetEventId];
-
-            if(activeEventId === deleteTargetEventId) window.goToEventsHome();
-            renderEngine();
             window.closeDeleteModal();
         }
 
@@ -693,8 +740,8 @@
             localStorage.removeItem('rs_active_user');
             currentTab = "general";
             renderEngine();
+            pushNavState();
         }
-
         // ════════════════════════════════════════════════════════════
         // TECLADO NUMÉRICO (CANTIDAD DESEADA)
         // ════════════════════════════════════════════════════════════
@@ -849,10 +896,9 @@
                 document.getElementById('view-cart').classList.remove('active');
 
                 const nameLabel = activeUserObj
-                    ? `<span onclick="window.changeIdentityInsideTrip()" style="cursor:pointer; font-size:13.5px; font-weight:700; color:#fff; white-space:nowrap;">${activeUserObj.nombre}</span>`
-                    : `<span onclick="window.changeIdentityInsideTrip()" style="cursor:pointer; font-size:12.5px; font-weight:700; color:rgba(255,255,255,0.65); text-decoration:underline; white-space:nowrap;">Identifícate</span>`;
+                    ? `<span onclick="window.changeIdentityInsideTrip()" style="cursor:pointer; font-size:13.5px; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:150px; display:inline-block;">${activeUserObj.nombre}</span>`
+                    : `<span onclick="window.changeIdentityInsideTrip()" style="cursor:pointer; font-size:12.5px; font-weight:700; color:rgba(255,255,255,0.65); text-decoration:underline; white-space:nowrap; flex-shrink:0;">Identifícate</span>`;
                 actionsTarget.innerHTML = `
-                    <button class="btn-back-escape" onclick="window.goToEventsHome()">◀ Escapadas</button>
                     ${nameLabel}
                     <button class="btn-round-nav" onclick="window.goToCartView()" title="Mi Carrito" style="background-color:rgba(255,255,255,0.15); border-color:rgba(255,255,255,0.3); font-size:17px;">🛒</button>
                 `;
@@ -861,7 +907,7 @@
                 document.getElementById('view-general').classList.remove('active');
                 document.getElementById('view-cart').classList.add('active');
                 const nameLabel = activeUserObj
-                    ? `<span onclick="window.changeIdentityInsideTrip()" style="cursor:pointer; font-size:13.5px; font-weight:700; color:#fff; white-space:nowrap;">${activeUserObj.nombre}</span>`
+                    ? `<span onclick="window.changeIdentityInsideTrip()" style="cursor:pointer; font-size:13.5px; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:150px; display:inline-block;">${activeUserObj.nombre}</span>`
                     : '';
                 actionsTarget.innerHTML = `<button class="btn-back-escape" onclick="window.backToGeneralList()">◀ Lista</button>${nameLabel}`;
             }
@@ -938,8 +984,12 @@
                 activeGrupos.forEach(g => {
                     const card = document.createElement('div');
                     card.className = 'subgroup-card';
+                    const safeGroupName = (g.nombre||'').replace(/'/g, "\\'");
                     let html = `
-                        <div class="subgroup-banner-title">📦 ${g.nombre}</div>
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:14px;">
+                            <div class="subgroup-banner-title" style="margin-bottom:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">📦 ${g.nombre}</div>
+                            <button class="btn-pill-claim" style="border-color:#dc2626; color:#dc2626; flex-shrink:0;" onclick="window.triggerGroupDeleteFlow('${g.id}', '${safeGroupName}', event)">🗑️</button>
+                        </div>
                         <div class="inline-add-product-form">
                             <input type="text" id="inline-input-${g.id}" placeholder="Escribir artículo..." onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.addProductInline('${g.id}'); }">
                             <button class="btn-action" onclick="window.addProductInline('${g.id}')">+</button>
@@ -951,6 +1001,7 @@
                         let borderStyle = `border-left: 14px solid #cbd5e1;`;
                         let status = 'Libre 🔓'; let bTxt = 'Lo compro'; let cssClass = ''; let badge = '';
                         const checked = isProductChecked(p);
+                        const safeProdName = (p.nombre||'').replace(/'/g, "\\'");
                         if(p.usuario_id) {
                             const u = db.usuarios[p.usuario_id];
                             const c = u ? u.color : "#cbd5e1";
@@ -966,9 +1017,10 @@
                                     <span class="item-main-text">${p.nombre}</span>
                                     <span class="item-sub-text">${status} ${badge}</span>
                                 </div>
-                                <div style="display:flex; align-items:center;">
+                                <div style="display:flex; align-items:center; gap:6px;">
                                     <button class="btn-quantity-picker" onclick="window.openQtyKeyboardPopup('${p.id}', event)">x${p.cantidad_deseada || 1}</button>
                                     <button class="btn-pill-claim" onclick="window.toggleClaim('${p.id}')">${bTxt}</button>
+                                    <button class="btn-pill-claim" style="border-color:#dc2626; color:#dc2626; padding:6px 9px;" onclick="window.triggerProductDeleteFlow('${p.id}', '${safeProdName}', event)">🗑️</button>
                                 </div>
                             </div>
                         `;
@@ -1047,6 +1099,35 @@
                 }
             }
         }
+
+        // ════════════════════════════════════════════════════════════
+        // NAVEGACIÓN CON EL BOTÓN ATRÁS DEL MÓVIL/NAVEGADOR
+        // ════════════════════════════════════════════════════════════
+        function pushNavState() {
+            try {
+                history.pushState({ tab: currentTab, eventId: activeEventId, userId: activeUserId }, '', '');
+            } catch(e) {}
+        }
+
+        window.addEventListener('popstate', (e) => {
+            const state = e.state || { tab: 'events', eventId: '', userId: null };
+            currentTab = state.tab || 'events';
+            activeEventId = state.eventId || "";
+            activeUserId = state.userId || null;
+
+            if(currentTab === 'events'){
+                localStorage.removeItem('rs_active_event');
+                localStorage.removeItem('rs_active_user');
+            } else {
+                if(activeEventId) localStorage.setItem('rs_active_event', activeEventId); else localStorage.removeItem('rs_active_event');
+                if(activeUserId) localStorage.setItem('rs_active_user', activeUserId); else localStorage.removeItem('rs_active_user');
+            }
+            document.getElementById('login-screen').classList.remove('active');
+            checkAuthenticationState();
+            renderEngine();
+        });
+
+        try { history.replaceState({ tab: currentTab, eventId: activeEventId, userId: activeUserId }, '', ''); } catch(e) {}
 
         subscribeRealtime();
         loadAll();
