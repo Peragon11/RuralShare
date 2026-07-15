@@ -776,7 +776,7 @@
         window.addSubgroup = async function() {
             const el = document.getElementById('subgroup-input');
             if(!el.value.trim() || !activeEventId) return;
-            await sbInsert('grupos', { nombre: el.value.trim(), evento_id: activeEventId, usuario_id: activeUserId });
+            await sbInsert('grupos', { nombre: el.value.trim(), evento_id: activeEventId });
             el.value = '';
         }
 
