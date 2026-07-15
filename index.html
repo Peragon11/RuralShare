@@ -481,13 +481,27 @@
         // ════════════════════════════════════════════════════════════
         // GESTIÓN GLOBAL DE AMIGOS
         // ════════════════════════════════════════════════════════════
+        let returnToLoginAfterUserCreation = false;
+
         window.openGlobalUsersModal = function() {
             document.getElementById('global-users-modal').classList.add('active');
             renderGlobalUsersList();
         }
 
+        window.openUserCreationFromLogin = function() {
+            returnToLoginAfterUserCreation = true;
+            document.getElementById('login-screen').classList.remove('active');
+            document.getElementById('global-users-modal').classList.add('active');
+            renderGlobalUsersList();
+            setTimeout(() => document.getElementById('global-user-input')?.focus(), 50);
+        }
+
         window.closeGlobalUsersModal = function() {
             document.getElementById('global-users-modal').classList.remove('active');
+            if(returnToLoginAfterUserCreation){
+                returnToLoginAfterUserCreation = false;
+                document.getElementById('login-screen').classList.add('active');
+            }
             checkAuthenticationState();
             renderEngine();
         }
@@ -870,6 +884,12 @@
                         loginTarget.appendChild(btn);
                     });
                 }
+                const newUserBtn = document.createElement('button');
+                newUserBtn.className = 'btn-selection-row btn-add-extra';
+                newUserBtn.innerHTML = `<span>➕ Nuevo usuario</span>`;
+                newUserBtn.onclick = () => window.openUserCreationFromLogin();
+                loginTarget.appendChild(newUserBtn);
+
                 const tripBannerText = document.getElementById('active-trip-banner-text');
                 if(tripBannerText) {
                     tripBannerText.innerText = `🏡 Viaje: ${currentEvent.nombre} (${activeUserObj ? activeUserObj.nombre : 'Sin Usuario'})`;
