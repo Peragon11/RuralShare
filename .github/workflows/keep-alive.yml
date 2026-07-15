@@ -1,0 +1,14 @@
+name: Keep RuralShare Alive
+
+on:
+  schedule:
+    - cron: "0 10 * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Visit RuralShare
+        run: curl -L https://ruralshare.vercel.app/
