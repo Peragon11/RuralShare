@@ -133,10 +133,10 @@
     <div id="global-users-modal" class="app-overlay">
         <div class="flow-card">
             <div style="position: absolute; top:15px; right:15px; font-size:20px; cursor:pointer;" onclick="window.closeGlobalUsersModal()">✕</div>
-            <div class="flow-title">👥 Lista de Amigos</div>
+            <div class="flow-title">👥 Lista de Usuarios</div>
             <div class="flow-subtitle">Añade o edita los perfiles del grupo de viaje:</div>
             <div class="input-row" style="margin-bottom: 14px;">
-                <input type="text" id="global-user-input" placeholder="Nombre del nuevo amigo" onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.createGlobalUser(); }">
+                <input type="text" id="global-user-input" placeholder="Nombre" onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.createGlobalUser(); }">
                 <button class="btn-action" onclick="window.createGlobalUser()">Guardar</button>
             </div>
             <div class="scrollable-grid-list" id="global-users-list-target" style="max-height: 240px;"></div>
@@ -209,22 +209,22 @@
         
         <section id="view-events" class="view-section active">
             <div class="card">
-                <div class="card-title">🏕️ Planificar Nueva Escapada</div>
+                <div class="card-title">🏕️ Crear Nuevo Viaje</div>
                 <div class="input-row">
                     <input type="text" id="event-input" placeholder="Nombre del destino/viaje" onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.triggerEventCreationWizard(); }">
                     <button class="btn-action" onclick="window.triggerEventCreationWizard()">Crear viaje</button>
                 </div>
             </div>
             <div class="card">
-                <div class="card-title">📂 Selecciona una Escapada</div>
+                <div class="card-title">📂 Selecciona un Viaje</div>
                 <div id="events-list-target"></div>
             </div>
         </section>
 
         <section id="view-general" class="view-section">
-            <div style="margin-bottom: 15px; background: #eae6df; padding: 10px 14px; border-radius: var(--border-radius-sm); font-size: 13px; font-weight: 700; display:flex; align-items:center; gap:10px;">
-                <button class="btn-back-escape" style="background:#fff; border:1px solid #cbd5e1; color:var(--text-dark); flex-shrink:0; padding:6px 10px;" onclick="window.goToEventsHome()">◀</button>
-                <span id="active-trip-banner-text" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0;">📍 Viaje</span>
+            <div style="margin-bottom: 15px; background: #eae6df; padding: 10px 14px; border-radius: var(--border-radius-sm); display:flex; align-items:center; gap:10px;">
+                <button class="btn-back-escape" style="background:#fff; border:1px solid #cbd5e1; color:var(--text-dark); flex-shrink:0; padding:7px 12px;" onclick="window.goToEventsHome()">◀ Atrás</button>
+                <span id="active-trip-banner-text" style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:center; font-size:17px; font-weight:800; color:var(--primary);">Viaje</span>
             </div>
             <div class="card">
                 <div class="card-title">➕ Añadir Categoría / Grupo</div>
@@ -275,7 +275,10 @@
         const HIGH_CONTRAST_COLORS = [
             "#e63946", "#1d3557", "#2a9d8f", "#f4a261", "#6a0dad",
             "#ff007f", "#0077b6", "#b5179e", "#2b9348", "#f77f00",
-            "#4a5759", "#ad2831", "#0f4c5c", "#70e000", "#e07a5f"
+            "#4a5759", "#ad2831", "#0f4c5c", "#70e000", "#e07a5f",
+            "#ffd60a", "#003049", "#9d4edd", "#00bbf9", "#f15bb5",
+            "#00f5d4", "#ff6b6b", "#386641", "#bc6c25", "#3a0ca3",
+            "#ffafcc", "#4361ee", "#ff9f1c", "#2ec4b6", "#8ac926"
         ];
 
         // Caché local (se mantiene sincronizada con Supabase en tiempo real)
@@ -515,9 +518,17 @@
         window.createGlobalUser = async function() {
             const el = document.getElementById('global-user-input');
             if(!el.value.trim()) return;
-            await sbInsert('usuarios', { nombre: el.value.trim(), color: assignNextColor() });
+            const created = await sbInsert('usuarios', { nombre: el.value.trim(), color: assignNextColor() });
             el.value = '';
-            renderGlobalUsersList();
+            if(!created) return;
+
+            if(returnToLoginAfterUserCreation){
+                returnToLoginAfterUserCreation = false;
+                document.getElementById('global-users-modal').classList.remove('active');
+                window.loginAsUser(created.id);
+            } else {
+                renderGlobalUsersList();
+            }
         }
 
         function renderGlobalUsersList() {
@@ -532,10 +543,11 @@
             list.forEach(u => {
                 const div = document.createElement('div');
                 div.className = 'interactive-item';
+                div.style.background = u.color;
                 div.style.borderLeft = `14px solid ${u.color}`;
                 div.innerHTML = `
-                    <span class="item-main-text" style="font-size:14px;">👤 ${u.nombre}</span>
-                    <button class="btn-pill-claim" style="border-color:var(--primary); color:var(--primary);" onclick="window.openEditUserPopup('${u.id}')">✏️</button>
+                    <span class="item-main-text" style="font-size:14.5px; font-weight:800; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.35);">${u.nombre}</span>
+                    <button class="btn-pill-claim" style="border-color:#fff; color:#fff; background:rgba(0,0,0,0.2);" onclick="window.openEditUserPopup('${u.id}')">✏️</button>
                 `;
                 target.appendChild(div);
             });
@@ -898,9 +910,11 @@
                 const nameLabel = activeUserObj
                     ? `<span onclick="window.changeIdentityInsideTrip()" style="cursor:pointer; font-size:13.5px; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:150px; display:inline-block;">${activeUserObj.nombre}</span>`
                     : `<span onclick="window.changeIdentityInsideTrip()" style="cursor:pointer; font-size:12.5px; font-weight:700; color:rgba(255,255,255,0.65); text-decoration:underline; white-space:nowrap; flex-shrink:0;">Identifícate</span>`;
+                const cartBg = activeUserObj ? activeUserObj.color : 'rgba(255,255,255,0.15)';
+                const cartBorder = activeUserObj ? '#fff' : 'rgba(255,255,255,0.3)';
                 actionsTarget.innerHTML = `
                     ${nameLabel}
-                    <button class="btn-round-nav" onclick="window.goToCartView()" title="Mi Carrito" style="background-color:rgba(255,255,255,0.15); border-color:rgba(255,255,255,0.3); font-size:17px;">🛒</button>
+                    <button class="btn-round-nav" onclick="window.goToCartView()" title="Mi Carrito" style="background-color:${cartBg}; border-color:${cartBorder}; font-size:17px;">🛒</button>
                 `;
             } else if (currentTab === 'cart') {
                 document.getElementById('view-events').classList.remove('active');
@@ -939,7 +953,7 @@
 
                 const tripBannerText = document.getElementById('active-trip-banner-text');
                 if(tripBannerText) {
-                    tripBannerText.innerText = `📍 ${currentEvent.nombre}`;
+                    tripBannerText.innerText = currentEvent.nombre;
                 }
             }
 
@@ -957,16 +971,11 @@
                         div.style.cursor = 'pointer';
                         div.onclick = () => window.selectActiveEvent(ev.id);
                         const safeName = (ev.nombre||'').replace(/'/g, "\\'");
-                        const creador = db.usuarios[ev.usuario_id];
                         div.innerHTML = `
                             <div class="item-label-group">
-                                <span class="item-main-text">${ev.nombre}</span>
-                                <span class="item-sub-text">${creador ? 'Creado por ' + creador.nombre : 'Escapada'}</span>
+                                <span class="item-main-text" style="font-size:18px; font-weight:800;">${ev.nombre}</span>
                             </div>
-                            <div style="display:flex; align-items:center; gap:8px;">
-                                <button class="btn-pill-claim" style="border-color:#dc2626; color:#dc2626;" onclick="window.triggerEventDeleteFlow('${ev.id}', '${safeName}', event)">🗑️</button>
-                                <div style="font-weight:700; font-size:13px; color:var(--primary);">Entrar ➔</div>
-                            </div>
+                            <button style="background:#fee2e2; color:#dc2626; border:none; width:38px; height:38px; border-radius:50%; font-size:16px; flex-shrink:0; display:flex; align-items:center; justify-content:center;" onclick="window.triggerEventDeleteFlow('${ev.id}', '${safeName}', event)">🗑️</button>
                         `;
                         eventsTarget.appendChild(div);
                     });
