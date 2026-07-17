@@ -229,14 +229,44 @@
                 <span id="active-trip-banner-text" style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:center; font-size:17px; font-weight:800; color:var(--primary);">Viaje</span>
             </div>
             <div class="card">
-                <div class="card-title">➕ Añadir Categoría / Grupo</div>
-                <div class="input-row">
-                    <input type="text" id="subgroup-input" placeholder="Ej: Nevera, Barbacoa, Bebidas..." onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.addSubgroup(); }">
-                    <button class="btn-action" onclick="window.addSubgroup()">Añadir</button>
+                <div class="card-title" style="cursor:pointer; display:flex; align-items:center; justify-content:space-between;" onclick="window.toggleAddGroupPanel()">
+                    <span>➕ Añadir Categoría / Grupo</span>
+                    <span id="add-group-chevron" style="font-size:14px;">▾</span>
+                </div>
+                <div id="add-group-panel" style="display:none; margin-top:10px;">
+                    <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:8px; margin-bottom:14px;">
+                        <button class="btn-selection-row" style="justify-content:center; text-align:center; font-size:13.5px; padding:12px 8px;" onclick="window.quickAddGroup('Bebidas')">🥤 Bebidas</button>
+                        <button class="btn-selection-row" style="justify-content:center; text-align:center; font-size:13.5px; padding:12px 8px;" onclick="window.quickAddGroup('Barbacoa')">🍖 Barbacoa</button>
+                        <button class="btn-selection-row" style="justify-content:center; text-align:center; font-size:13.5px; padding:12px 8px;" onclick="window.quickAddGroup('Desayunos')">🥐 Desayunos</button>
+                        <button class="btn-selection-row" style="justify-content:center; text-align:center; font-size:13.5px; padding:12px 8px;" onclick="window.quickAddGroup('Merienda')">🍪 Merienda</button>
+                        <button class="btn-selection-row" style="justify-content:center; text-align:center; font-size:13.5px; padding:12px 8px;" onclick="window.openDayPicker('Comida')">🍽️ Comida</button>
+                        <button class="btn-selection-row" style="justify-content:center; text-align:center; font-size:13.5px; padding:12px 8px;" onclick="window.openDayPicker('Cena')">🌙 Cena</button>
+                    </div>
+                    <div class="input-row">
+                        <input type="text" id="subgroup-input" placeholder="O escribe un grupo personalizado..." onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.addSubgroup(); }">
+                        <button class="btn-action" onclick="window.addSubgroup()">Añadir</button>
+                    </div>
                 </div>
             </div>
             <div id="general-list-target"></div>
         </section>
+
+        <div id="day-picker-popup" class="qty-popup-overlay" onclick="window.closeDayPicker()">
+            <div class="qty-popup-card" onclick="event.stopPropagation()">
+                <div style="font-weight: 800; font-size: 16px; color: #1b4332; margin-bottom: 2px; text-align:left;" id="day-picker-title">¿Qué día?</div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px; text-align:left;">Elige el día de la semana:</div>
+                <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:8px;">
+                    <button class="btn-key" onclick="window.selectDayForGroup('Lunes')">Lunes</button>
+                    <button class="btn-key" onclick="window.selectDayForGroup('Martes')">Martes</button>
+                    <button class="btn-key" onclick="window.selectDayForGroup('Miércoles')">Miércoles</button>
+                    <button class="btn-key" onclick="window.selectDayForGroup('Jueves')">Jueves</button>
+                    <button class="btn-key" onclick="window.selectDayForGroup('Viernes')">Viernes</button>
+                    <button class="btn-key" onclick="window.selectDayForGroup('Sábado')">Sábado</button>
+                    <button class="btn-key key-wide" onclick="window.selectDayForGroup('Domingo')">Domingo</button>
+                    <button class="btn-key key-close key-wide" onclick="window.closeDayPicker()">Cerrar</button>
+                </div>
+            </div>
+        </div>
 
         <section id="view-cart" class="view-section">
             <div id="cart-list-target"></div>
@@ -860,14 +890,70 @@
         window.addSubgroup = async function() {
             const el = document.getElementById('subgroup-input');
             if(!el.value.trim() || !activeEventId) return;
-            await sbInsert('grupos', { nombre: el.value.trim(), evento_id: activeEventId });
+            const nombre = el.value.trim();
+            const yaExiste = Object.values(db.grupos).some(g => g.evento_id === activeEventId && (g.nombre||'').trim().toLowerCase() === nombre.toLowerCase());
+            if(yaExiste){
+                alert(`"${nombre}" ya existe en este viaje.`);
+                return;
+            }
+            await sbInsert('grupos', { nombre, evento_id: activeEventId });
             el.value = '';
+        }
+
+        let addGroupExpanded = false;
+        window.toggleAddGroupPanel = function() {
+            addGroupExpanded = !addGroupExpanded;
+            const panel = document.getElementById('add-group-panel');
+            const chevron = document.getElementById('add-group-chevron');
+            if(panel) panel.style.display = addGroupExpanded ? 'block' : 'none';
+            if(chevron) chevron.innerText = addGroupExpanded ? '▴' : '▾';
+        }
+
+        window.quickAddGroup = async function(nombre) {
+            if(!activeEventId) return;
+            const yaExiste = Object.values(db.grupos).some(g => g.evento_id === activeEventId && (g.nombre||'').trim().toLowerCase() === nombre.toLowerCase());
+            if(yaExiste){
+                alert(`"${nombre}" ya existe en este viaje.`);
+                return;
+            }
+            await sbInsert('grupos', { nombre, evento_id: activeEventId });
+        }
+
+        let pendingDayGroupBase = '';
+        window.openDayPicker = function(base) {
+            pendingDayGroupBase = base;
+            const title = document.getElementById('day-picker-title');
+            if(title) title.innerText = `¿Qué día para "${base}"?`;
+            document.getElementById('day-picker-popup').classList.add('active');
+        }
+
+        window.closeDayPicker = function() {
+            document.getElementById('day-picker-popup').classList.remove('active');
+            pendingDayGroupBase = '';
+        }
+
+        window.selectDayForGroup = async function(day) {
+            if(!pendingDayGroupBase || !activeEventId) return;
+            const nombre = `${pendingDayGroupBase} ${day}`;
+            window.closeDayPicker();
+            const yaExiste = Object.values(db.grupos).some(g => g.evento_id === activeEventId && (g.nombre||'').trim().toLowerCase() === nombre.toLowerCase());
+            if(yaExiste){
+                alert(`"${nombre}" ya existe en este viaje.`);
+                return;
+            }
+            await sbInsert('grupos', { nombre, evento_id: activeEventId });
         }
 
         window.addProductInline = async function(grupoId) {
             const el = document.getElementById(`inline-input-${grupoId}`);
             if(!el || !el.value.trim()) return;
-            await sbInsert('productos', { nombre: el.value.trim(), grupo_id: grupoId, usuario_id: null, cantidad_deseada: 1, cantidad_comprada: 0 });
+            const nombre = el.value.trim();
+            const yaExiste = Object.values(db.productos).some(p => p.grupo_id === grupoId && (p.nombre||'').trim().toLowerCase() === nombre.toLowerCase());
+            if(yaExiste){
+                alert(`"${nombre}" ya está en este grupo.`);
+                return;
+            }
+            await sbInsert('productos', { nombre, grupo_id: grupoId, usuario_id: null, cantidad_deseada: 1, cantidad_comprada: 0 });
             el.value = '';
         }
 
