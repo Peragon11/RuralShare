@@ -290,6 +290,7 @@
         let activeUserId = localStorage.getItem('rs_active_user') || null;
         let selectedProductForQtyId = "";
         let currentTab = "events";
+        let hideClaimedItems = false;
 
         let editingUserId = null;
         let selectedEditingColor = "";
@@ -487,6 +488,11 @@
             currentTab = "cart";
             renderEngine();
             pushNavState();
+        }
+
+        window.toggleHideClaimedItems = function() {
+            hideClaimedItems = !hideClaimedItems;
+            renderEngine();
         }
 
         // ════════════════════════════════════════════════════════════
@@ -993,6 +999,15 @@
                 if(activeGrupos.length === 0 && currentTab === 'general') {
                     generalTarget.innerHTML = '<div class="empty-illustration"><span>📦</span>No hay categorías en este viaje. Crea la primera arriba.</div>';
                 }
+                if(activeGrupos.length > 0){
+                    const filterBar = document.createElement('label');
+                    filterBar.style.cssText = 'display:flex; align-items:center; gap:10px; background:#faf9f6; border:1px solid #eae6df; padding:10px 14px; border-radius:var(--border-radius-sm); margin-bottom:14px; cursor:pointer;';
+                    filterBar.innerHTML = `
+                        <input type="checkbox" ${hideClaimedItems ? 'checked' : ''} onchange="window.toggleHideClaimedItems()" style="width:20px; height:20px; flex-shrink:0;">
+                        <span style="font-size:13.5px; font-weight:700; color:var(--text-dark);">🙈 Ocultar productos ya cogidos o comprados</span>
+                    `;
+                    generalTarget.appendChild(filterBar);
+                }
                 activeGrupos.forEach(g => {
                     const card = document.createElement('div');
                     card.className = 'subgroup-card';
@@ -1008,7 +1023,11 @@
                         </div>
                         <div>
                     `;
-                    const prods = Object.values(db.productos).filter(p => p.grupo_id === g.id);
+                    const allProds = Object.values(db.productos).filter(p => p.grupo_id === g.id);
+                    const prods = hideClaimedItems ? allProds.filter(p => !p.usuario_id) : allProds;
+                    if(allProds.length > 0 && prods.length === 0){
+                        html += `<div class="group-empty" style="font-size:12.5px; color:var(--text-muted); font-style:italic; padding:6px 2px;">Todo oculto por el filtro (ya cogidos o comprados).</div>`;
+                    }
                     prods.forEach(p => {
                         let rowStyle = `border-left: 8px solid #cbd5e1;`;
                         let bTxt = 'Lo compro'; let cssClass = ''; let claimBtnStyle = ''; let delBtnStyle = 'border-color:#dc2626; color:#dc2626;';
