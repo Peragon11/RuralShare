@@ -99,6 +99,8 @@
         .interactive-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: #faf9f6; border-radius: var(--border-radius-sm); margin-bottom: 10px; border-left: 14px solid #cbd5e1; }
         .interactive-item.active-event-border { border-left-color: #1b4332; background: rgba(27, 67, 50, 0.05); }
         .interactive-item.already-bought { background-color: #e2e8f0 !important; opacity: 0.75; }
+        .product-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: #faf9f6; border-radius: 10px; margin-bottom: 6px; border-left: 4px solid #cbd5e1; gap: 8px; }
+        .product-row.already-bought { background-color: #e2e8f0 !important; opacity: 0.7; }
         
         .user-color-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; color: white; margin-top: 6px; }
         
@@ -525,6 +527,7 @@
             if(returnToLoginAfterUserCreation){
                 returnToLoginAfterUserCreation = false;
                 document.getElementById('global-users-modal').classList.remove('active');
+                document.getElementById('login-screen').classList.remove('active');
                 window.loginAsUser(created.id);
             } else {
                 renderGlobalUsersList();
@@ -1007,29 +1010,37 @@
                     `;
                     const prods = Object.values(db.productos).filter(p => p.grupo_id === g.id);
                     prods.forEach(p => {
-                        let borderStyle = `border-left: 14px solid #cbd5e1;`;
-                        let status = 'Libre 🔓'; let bTxt = 'Lo compro'; let cssClass = ''; let badge = '';
+                        let rowStyle = `border-left: 8px solid #cbd5e1;`;
+                        let bTxt = 'Lo compro'; let cssClass = ''; let claimBtnStyle = ''; let delBtnStyle = 'border-color:#dc2626; color:#dc2626;';
+                        let nameStyle = '';
+                        let qtyBtnStyle = '';
                         const checked = isProductChecked(p);
                         const safeProdName = (p.nombre||'').replace(/'/g, "\\'");
                         if(p.usuario_id) {
                             const u = db.usuarios[p.usuario_id];
                             const c = u ? u.color : "#cbd5e1";
-                            borderStyle = `border-left: 14px solid ${c};`;
-                            if(checked) { cssClass = 'already-bought'; status = 'Comprado ✓'; }
-                            else status = 'Asignado';
-                            badge = `<span class="user-color-badge" style="background-color:${c};">${u ? u.nombre : 'Amigo'}</span>`;
+                            if(checked){
+                                cssClass = 'already-bought';
+                                rowStyle = `border-left: 8px solid ${c};`;
+                                claimBtnStyle = `background:#fff; border-color:${c}; color:${c}; font-weight:800;`;
+                            } else {
+                                rowStyle = `background:${c}; border-left: 8px solid ${c};`;
+                                nameStyle = `color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.35);`;
+                                claimBtnStyle = `background:rgba(255,255,255,0.9); border-color:#fff; color:${c}; font-weight:800;`;
+                                delBtnStyle = `border-color:rgba(255,255,255,0.7); color:#fff; background:rgba(0,0,0,0.15);`;
+                                qtyBtnStyle = `background:rgba(255,255,255,0.9); border-color:#fff; color:${c}; font-weight:800;`;
+                            }
                             bTxt = (p.usuario_id === activeUserId) ? 'Soltar' : 'Quitar';
                         }
                         html += `
-                            <div class="interactive-item ${cssClass}" style="${borderStyle}">
-                                <div class="item-label-group">
-                                    <span class="item-main-text">${p.nombre}</span>
-                                    <span class="item-sub-text">${status} ${badge}</span>
+                            <div class="interactive-item ${cssClass}" style="${rowStyle} padding:9px 12px; margin-bottom:7px;">
+                                <div class="item-label-group" style="padding-right:6px;">
+                                    <span class="item-main-text" style="font-size:14px; ${nameStyle} ${checked ? 'text-decoration:line-through; opacity:0.7;' : ''}">${p.nombre}</span>
                                 </div>
-                                <div style="display:flex; align-items:center; gap:6px;">
-                                    <button class="btn-quantity-picker" onclick="window.openQtyKeyboardPopup('${p.id}', event)">x${p.cantidad_deseada || 1}</button>
-                                    <button class="btn-pill-claim" onclick="window.toggleClaim('${p.id}')">${bTxt}</button>
-                                    <button class="btn-pill-claim" style="border-color:#dc2626; color:#dc2626; padding:6px 9px;" onclick="window.triggerProductDeleteFlow('${p.id}', '${safeProdName}', event)">🗑️</button>
+                                <div style="display:flex; align-items:center; gap:5px;">
+                                    <button class="btn-quantity-picker" style="padding:5px 10px; font-size:12.5px; margin-right:0; ${qtyBtnStyle}" onclick="window.openQtyKeyboardPopup('${p.id}', event)">x${p.cantidad_deseada || 1}</button>
+                                    <button class="btn-pill-claim" style="padding:6px 11px; font-size:11.5px; ${claimBtnStyle}" onclick="window.toggleClaim('${p.id}')">${bTxt}</button>
+                                    <button class="btn-pill-claim" style="padding:6px 8px; font-size:11.5px; ${delBtnStyle}" onclick="window.triggerProductDeleteFlow('${p.id}', '${safeProdName}', event)">🗑️</button>
                                 </div>
                             </div>
                         `;
