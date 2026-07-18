@@ -263,7 +263,7 @@
             <div class="card">
                 <div class="card-title" style="cursor:pointer; display:flex; align-items:center; justify-content:space-between;" onclick="window.toggleAddGroupPanel()">
                     <span>➕ Añadir Categoría / Grupo</span>
-                    <span id="add-group-chevron" style="font-size:14px;">▾</span>
+                    <span id="add-group-chevron" style="font-size:28px; line-height:1; font-weight:900; color:var(--primary);">▾</span>
                 </div>
                 <div id="add-group-panel" style="display:none; margin-top:10px;">
                     <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:8px; margin-bottom:14px;">
@@ -1269,10 +1269,14 @@
         // popup si hay uno abierto, o retroceder un nivel de pantalla) en
         // vez de dejar que el navegador recorra todo lo navegado.
         // ════════════════════════════════════════════════════════════
+        // Los popups tipo "hoja inferior" (z-index 3000) pueden abrirse ENCIMA
+        // de los popups tipo "pantalla completa" (z-index 2000, ej. Lista de
+        // Usuarios). Van primero en la lista para cerrar siempre el que está
+        // más arriba visualmente antes que el que tiene detrás.
         const POPUP_IDS = [
-            'info-modal-popup', 'login-screen', 'global-users-modal',
-            'delete-confirm-popup', 'edit-user-popup', 'qty-keyboard-popup',
-            'cart-qty-popup', 'day-picker-popup'
+            'edit-user-popup', 'delete-confirm-popup', 'qty-keyboard-popup',
+            'cart-qty-popup', 'day-picker-popup', 'info-modal-popup',
+            'login-screen', 'global-users-modal'
         ];
 
         function getOpenPopupId() {
@@ -1301,14 +1305,20 @@
         }
 
         window.addEventListener('popstate', () => {
-            // 1) Si hay un popup abierto, solo lo cerramos (no navegamos de pantalla)
+            // 1) Si hay cualquier tipo de ventana/popup abierta, solo la cerramos
             const openPopup = getOpenPopupId();
             if(openPopup){
                 closePopupById(openPopup);
                 armBackTrap();
                 return;
             }
-            // 2) Sin popups abiertos: retrocedemos un único nivel dentro de la app
+            // 2) Si el panel de "Añadir Categoría / Grupo" está desplegado, lo cerramos
+            if(addGroupExpanded){
+                window.toggleAddGroupPanel();
+                armBackTrap();
+                return;
+            }
+            // 3) Sin nada abierto: retrocedemos un único nivel dentro de la app
             if(currentTab === 'cart'){
                 currentTab = 'general';
             } else if(currentTab === 'general'){
