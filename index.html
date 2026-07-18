@@ -77,7 +77,7 @@
         /* CABECERA SUPERIOR */
         .app-header { background: linear-gradient(135deg, #112a1d 0%, #1b4332 100%); color: white; padding: max(16px, env(safe-area-inset-top)) 20px 16px; border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg); box-shadow: var(--shadow-md); position: sticky; top: 0; z-index: 100; }
         .header-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-        .logo { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; cursor: pointer; flex-shrink: 0; }
+        .logo { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; gap: 6px; }
         .header-actions { display: flex; align-items: center; gap: 8px; min-height: 40px; min-width: 0; flex-shrink: 1; }
 
         @media (max-width: 380px) {
@@ -234,7 +234,7 @@
 
     <header class="app-header">
         <div class="header-top">
-            <div class="logo" onclick="window.goToEventsHome()">🌲 RuralShare</div>
+            <div class="logo" onclick="window.goToEventsHome()"><img src="icono.png" alt="RuralShare" style="height:28px; width:28px; border-radius:8px; object-fit:cover; vertical-align:middle; margin-right:2px;"> RuralShare</div>
             <div class="header-actions" id="header-actions-container"></div>
         </div>
     </header>
@@ -260,8 +260,8 @@
                 <button class="btn-back-escape" style="background:#fff; border:1px solid #cbd5e1; color:var(--text-dark); flex-shrink:0; padding:7px 12px;" onclick="history.back()">◀ Atrás</button>
                 <span id="active-trip-banner-text" style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:center; font-size:17px; font-weight:800; color:var(--primary);">Viaje</span>
             </div>
-            <div class="card">
-                <div class="card-title" style="cursor:pointer; display:flex; align-items:center; justify-content:space-between;" onclick="window.toggleAddGroupPanel()">
+            <div class="card" style="padding:14px 16px;">
+                <div class="card-title" style="cursor:pointer; display:flex; align-items:center; justify-content:space-between; margin-bottom:0;" onclick="window.toggleAddGroupPanel()">
                     <span>➕ Añadir Categoría / Grupo</span>
                     <span id="add-group-chevron" style="font-size:28px; line-height:1; font-weight:900; color:var(--primary);">▾</span>
                 </div>
@@ -1148,23 +1148,28 @@
                     const card = document.createElement('div');
                     card.className = 'subgroup-card';
                     const safeGroupName = (g.nombre||'').replace(/'/g, "\\'");
+                    const isCollapsed = collapsedGroups.has(g.id);
                     let html = `
-                        <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:14px;">
-                            <div class="subgroup-banner-title" style="margin-bottom:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">📦 ${g.nombre}</div>
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:${isCollapsed ? '0' : '14px'};">
+                            <button style="background:transparent; color:var(--primary); font-size:22px; font-weight:900; line-height:1; padding:2px 8px 2px 0; flex-shrink:0;" onclick="window.toggleGroupCollapse('${g.id}')">${isCollapsed ? '▸' : '▾'}</button>
+                            <div class="subgroup-banner-title" style="margin-bottom:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; cursor:pointer;" onclick="window.toggleGroupCollapse('${g.id}')">📦 ${g.nombre}</div>
                             <button class="btn-pill-claim" style="border-color:#dc2626; color:#dc2626; flex-shrink:0;" onclick="window.triggerGroupDeleteFlow('${g.id}', '${safeGroupName}', event)">🗑️</button>
                         </div>
+                    `;
+                    if(!isCollapsed){
+                        html += `
                         <div class="inline-add-product-form">
                             <input type="text" id="inline-input-${g.id}" placeholder="Escribir artículo..." onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.addProductInline('${g.id}'); }">
                             <button class="btn-action" onclick="window.addProductInline('${g.id}')">+</button>
                         </div>
                         <div>
-                    `;
-                    const allProds = Object.values(db.productos).filter(p => p.grupo_id === g.id);
-                    const prods = hideClaimedItems ? allProds.filter(p => !p.usuario_id) : allProds;
-                    if(allProds.length > 0 && prods.length === 0){
-                        html += `<div class="group-empty" style="font-size:12.5px; color:var(--text-muted); font-style:italic; padding:6px 2px;">Todo oculto por el filtro (ya cogidos o comprados).</div>`;
-                    }
-                    prods.forEach(p => {
+                        `;
+                        const allProds = Object.values(db.productos).filter(p => p.grupo_id === g.id);
+                        const prods = hideClaimedItems ? allProds.filter(p => !p.usuario_id) : allProds;
+                        if(allProds.length > 0 && prods.length === 0){
+                            html += `<div class="group-empty" style="font-size:12.5px; color:var(--text-muted); font-style:italic; padding:6px 2px;">Todo oculto por el filtro (ya cogidos o comprados).</div>`;
+                        }
+                        prods.forEach(p => {
                         let rowStyle = `border-left: 8px solid #cbd5e1;`;
                         let bTxt = 'Lo compro'; let cssClass = ''; let claimBtnStyle = ''; let delBtnStyle = 'border-color:#dc2626; color:#dc2626;';
                         let nameStyle = '';
