@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>RuralShare Live — Sistema de Cesta Autónomo</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1b4332">
+    <link rel="apple-touch-icon" href="icono.png">
+    <link rel="icon" href="icono.png">
     <style>
         :root {
             --bg-app: #fcfaf7; 
@@ -32,25 +36,35 @@
             position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
             background-color: rgba(0,0,0,0.4); z-index: 2000; 
             display: none; flex-direction: column; align-items: center; justify-content: center;
-            padding: 24px;
+            padding: 24px; overflow-y: auto;
         }
         .app-overlay.active { display: flex; }
-        .flow-card { background: white; width: 100%; max-width: 450px; padding: 30px 24px; border-radius: var(--border-radius-lg); box-shadow: var(--shadow-md); border: 1px solid rgba(0,0,0,0.05); text-align: center; position: relative; }
+        .flow-card { background: white; width: 100%; max-width: 450px; max-height: 90vh; overflow-y: auto; padding: 30px 24px; border-radius: var(--border-radius-lg); box-shadow: var(--shadow-md); border: 1px solid rgba(0,0,0,0.05); text-align: center; position: relative; margin: auto 0; }
         .flow-title { font-size: 20px; font-weight: 800; color: var(--primary); margin-bottom: 6px; text-align: left; }
         .flow-subtitle { font-size: 13.5px; color: var(--text-muted); margin-bottom: 20px; text-align: left; }
         
-        .scrollable-grid-list { display: flex; flex-direction: column; gap: 10px; max-height: 280px; overflow-y: auto; margin-bottom: 16px; padding-right: 4px; }
+        .scrollable-grid-list { display: flex; flex-direction: column; gap: 10px; max-height: 46vh; overflow-y: auto; margin-bottom: 16px; padding-right: 4px; }
         
         /* Botones de Selección */
-        .btn-selection-row { width: 100%; padding: 14px 18px; background: #faf9f6; border: 2px solid #eae6df; border-radius: var(--border-radius-sm); font-size: 15px; font-weight: 700; color: var(--text-dark); text-align: left; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.2s; }
+        .btn-selection-row { width: 100%; padding: 14px 18px; background: #faf9f6; border: 2px solid #eae6df; border-radius: var(--border-radius-sm); font-size: 15px; font-weight: 700; color: var(--text-dark); text-align: left; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
         .btn-selection-row.selected { background: var(--primary-light); border-color: var(--primary); }
         .btn-selection-row.btn-add-extra { background: #f0fdf4; border: 2px dashed #16a34a; color: #166534; justify-content: center; gap: 8px; }
         
         /* POPUPS INFERIORES */
         .qty-popup-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 3000; display: none; align-items: flex-end; justify-content: center; }
         .qty-popup-overlay.active { display: flex; }
-        .qty-popup-card { background: white; width: 100%; max-width: 500px; padding: 24px; border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0; box-shadow: 0 -10px 25px rgba(0,0,0,0.1); animation: slideUp 0.2s ease-out; text-align: center; }
+        .qty-popup-card { background: white; width: 100%; max-width: 500px; max-height: 88vh; overflow-y: auto; padding: 24px; border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0; box-shadow: 0 -10px 25px rgba(0,0,0,0.1); animation: slideUp 0.2s ease-out; text-align: center; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .app-overlay { padding: 12px; }
+            .flow-card { padding: 18px 16px; max-height: 94vh; }
+            .flow-title { font-size: 17px; margin-bottom: 3px; }
+            .flow-subtitle { font-size: 12px; margin-bottom: 12px; }
+            .scrollable-grid-list { max-height: 58vh; gap: 7px; }
+            .btn-selection-row { padding: 10px 14px; font-size: 13.5px; }
+            .qty-popup-card { padding: 14px; max-height: 94vh; }
+        }
         
         .qty-keyboard-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 15px; }
         .btn-key { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 14px 0; border-radius: var(--border-radius-sm); font-size: 16px; font-weight: 800; color: var(--text-dark); cursor: pointer; display: flex; align-items: center; justify-content: center; }
@@ -123,6 +137,14 @@
 </head>
 <body>
 
+    <div id="info-modal-popup" class="qty-popup-overlay" onclick="window.closeInfoModal()">
+        <div class="qty-popup-card" onclick="event.stopPropagation()" style="text-align:left;">
+            <div style="font-size:28px; margin-bottom:8px;">⚠️</div>
+            <div id="info-modal-message" style="font-size:15px; color:var(--text-dark); font-weight:600; margin-bottom:20px; line-height:1.45;"></div>
+            <button class="btn-action" style="width:100%;" onclick="window.closeInfoModal()">Aceptar</button>
+        </div>
+    </div>
+
     <div id="login-screen" class="app-overlay" style="background-color: rgba(0,0,0,0.5);">
         <div class="flow-card">
             <div class="flow-title">👤 ¿Quién accede?</div>
@@ -141,7 +163,7 @@
                 <input type="text" id="global-user-input" placeholder="Nombre" onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.createGlobalUser(); }">
                 <button class="btn-action" onclick="window.createGlobalUser()">Guardar</button>
             </div>
-            <div class="scrollable-grid-list" id="global-users-list-target" style="max-height: 240px;"></div>
+            <div class="scrollable-grid-list" id="global-users-list-target"></div>
         </div>
     </div>
 
@@ -198,6 +220,16 @@
             <button class="btn-action" style="width: 100%; margin-bottom: 8px; padding: 14px;" onclick="window.saveCartQtyChanges()">Confirmar y Guardar</button>
             <button class="btn-key key-wide key-close" style="width: 100%; padding: 12px 0;" onclick="window.closeCartQtyPopup()">Cancelar</button>
         </div>
+    </div>
+
+    <div id="install-banner" style="display:none; position:fixed; bottom:0; left:0; right:0; z-index:4000; background:#112a1d; color:#fff; padding:14px 16px; padding-bottom:max(14px, env(safe-area-inset-bottom)); box-shadow:0 -4px 12px rgba(0,0,0,0.25); align-items:center; gap:12px;">
+        <div style="font-size:24px;">📲</div>
+        <div style="flex:1; min-width:0;">
+            <div id="install-banner-title" style="font-weight:800; font-size:14px;">Instala RuralShare</div>
+            <div id="install-banner-text" style="font-size:12px; opacity:0.85;">Añádela a tu pantalla de inicio para abrirla como una app.</div>
+        </div>
+        <button id="install-banner-action" class="btn-action" style="padding:9px 14px; font-size:13px; flex-shrink:0;" onclick="window.triggerInstallPrompt()">Instalar</button>
+        <button style="background:transparent; color:rgba(255,255,255,0.6); font-size:18px; padding:4px 6px; flex-shrink:0;" onclick="window.dismissInstallBanner()">✕</button>
     </div>
 
     <header class="app-header">
@@ -456,6 +488,16 @@
             }
         }
 
+        window.showInfoModal = function(message) {
+            const msgEl = document.getElementById('info-modal-message');
+            if(msgEl) msgEl.innerText = message;
+            document.getElementById('info-modal-popup').classList.add('active');
+        }
+
+        window.closeInfoModal = function() {
+            document.getElementById('info-modal-popup').classList.remove('active');
+        }
+
         function assignNextColor() {
             const usedColors = Object.values(db.usuarios).map(u => (u.color||'').toLowerCase());
             const availableColors = HIGH_CONTRAST_COLORS.filter(c => !usedColors.includes(c.toLowerCase()));
@@ -473,7 +515,6 @@
             currentTab = "events";
             document.getElementById('login-screen').classList.remove('active');
             renderEngine();
-            pushNavState();
         }
 
         window.selectActiveEvent = function(id) {
@@ -483,7 +524,6 @@
             localStorage.removeItem('rs_active_user');
             currentTab = "general";
             renderEngine();
-            pushNavState();
         }
 
         window.loginAsUser = function(userId) {
@@ -507,7 +547,6 @@
         window.backToGeneralList = function() {
             currentTab = "general";
             renderEngine();
-            pushNavState();
         }
 
         window.goToCartView = function() {
@@ -517,7 +556,6 @@
             }
             currentTab = "cart";
             renderEngine();
-            pushNavState();
         }
 
         window.toggleHideClaimedItems = function() {
@@ -791,7 +829,6 @@
             localStorage.removeItem('rs_active_user');
             currentTab = "general";
             renderEngine();
-            pushNavState();
         }
         // ════════════════════════════════════════════════════════════
         // TECLADO NUMÉRICO (CANTIDAD DESEADA)
@@ -893,7 +930,7 @@
             const nombre = el.value.trim();
             const yaExiste = Object.values(db.grupos).some(g => g.evento_id === activeEventId && (g.nombre||'').trim().toLowerCase() === nombre.toLowerCase());
             if(yaExiste){
-                alert(`"${nombre}" ya existe en este viaje.`);
+                window.showInfoModal(`"${nombre}" ya existe en este viaje.`);
                 return;
             }
             await sbInsert('grupos', { nombre, evento_id: activeEventId });
@@ -913,7 +950,7 @@
             if(!activeEventId) return;
             const yaExiste = Object.values(db.grupos).some(g => g.evento_id === activeEventId && (g.nombre||'').trim().toLowerCase() === nombre.toLowerCase());
             if(yaExiste){
-                alert(`"${nombre}" ya existe en este viaje.`);
+                window.showInfoModal(`"${nombre}" ya existe en este viaje.`);
                 return;
             }
             await sbInsert('grupos', { nombre, evento_id: activeEventId });
@@ -938,7 +975,7 @@
             window.closeDayPicker();
             const yaExiste = Object.values(db.grupos).some(g => g.evento_id === activeEventId && (g.nombre||'').trim().toLowerCase() === nombre.toLowerCase());
             if(yaExiste){
-                alert(`"${nombre}" ya existe en este viaje.`);
+                window.showInfoModal(`"${nombre}" ya existe en este viaje.`);
                 return;
             }
             await sbInsert('grupos', { nombre, evento_id: activeEventId });
@@ -950,7 +987,7 @@
             const nombre = el.value.trim();
             const yaExiste = Object.values(db.productos).some(p => p.grupo_id === grupoId && (p.nombre||'').trim().toLowerCase() === nombre.toLowerCase());
             if(yaExiste){
-                alert(`"${nombre}" ya está en este grupo.`);
+                window.showInfoModal(`"${nombre}" ya está en este grupo.`);
                 return;
             }
             await sbInsert('productos', { nombre, grupo_id: grupoId, usuario_id: null, cantidad_deseada: 1, cantidad_comprada: 0 });
@@ -1227,35 +1264,122 @@
 
         // ════════════════════════════════════════════════════════════
         // NAVEGACIÓN CON EL BOTÓN ATRÁS DEL MÓVIL/NAVEGADOR
+        // Usamos una única entrada "trampa" en el historial: cada vez que
+        // el usuario pulsa atrás, decidimos nosotros qué hacer (cerrar un
+        // popup si hay uno abierto, o retroceder un nivel de pantalla) en
+        // vez de dejar que el navegador recorra todo lo navegado.
         // ════════════════════════════════════════════════════════════
-        function pushNavState() {
-            try {
-                history.pushState({ tab: currentTab, eventId: activeEventId, userId: activeUserId }, '', '');
-            } catch(e) {}
+        const POPUP_IDS = [
+            'info-modal-popup', 'login-screen', 'global-users-modal',
+            'delete-confirm-popup', 'edit-user-popup', 'qty-keyboard-popup',
+            'cart-qty-popup', 'day-picker-popup'
+        ];
+
+        function getOpenPopupId() {
+            for(const id of POPUP_IDS){
+                const el = document.getElementById(id);
+                if(el && el.classList.contains('active')) return id;
+            }
+            return null;
         }
 
-        window.addEventListener('popstate', (e) => {
-            const state = e.state || { tab: 'events', eventId: '', userId: null };
-            currentTab = state.tab || 'events';
-            activeEventId = state.eventId || "";
-            activeUserId = state.userId || null;
+        function closePopupById(id) {
+            switch(id){
+                case 'info-modal-popup': window.closeInfoModal(); break;
+                case 'login-screen': window.cancelEventLogin(); break;
+                case 'global-users-modal': window.closeGlobalUsersModal(); break;
+                case 'delete-confirm-popup': window.closeDeleteModal(); break;
+                case 'edit-user-popup': window.closeEditUserPopup(); break;
+                case 'qty-keyboard-popup': window.closeQtyKeyboard(); break;
+                case 'cart-qty-popup': window.closeCartQtyPopup(); break;
+                case 'day-picker-popup': window.closeDayPicker(); break;
+            }
+        }
 
-            if(currentTab === 'events'){
+        function armBackTrap() {
+            try { history.pushState({ trap: true }, '', ''); } catch(e) {}
+        }
+
+        window.addEventListener('popstate', () => {
+            // 1) Si hay un popup abierto, solo lo cerramos (no navegamos de pantalla)
+            const openPopup = getOpenPopupId();
+            if(openPopup){
+                closePopupById(openPopup);
+                armBackTrap();
+                return;
+            }
+            // 2) Sin popups abiertos: retrocedemos un único nivel dentro de la app
+            if(currentTab === 'cart'){
+                currentTab = 'general';
+            } else if(currentTab === 'general'){
+                currentTab = 'events';
+                activeEventId = "";
+                activeUserId = null;
                 localStorage.removeItem('rs_active_event');
                 localStorage.removeItem('rs_active_user');
             } else {
-                if(activeEventId) localStorage.setItem('rs_active_event', activeEventId); else localStorage.removeItem('rs_active_event');
-                if(activeUserId) localStorage.setItem('rs_active_user', activeUserId); else localStorage.removeItem('rs_active_user');
+                // Ya estábamos en la pantalla principal: dejamos que el navegador salga de la app
+                return;
             }
-            document.getElementById('login-screen').classList.remove('active');
-            checkAuthenticationState();
             renderEngine();
+            armBackTrap();
         });
 
-        try { history.replaceState({ tab: currentTab, eventId: activeEventId, userId: activeUserId }, '', ''); } catch(e) {}
+        armBackTrap();
 
         subscribeRealtime();
         loadAll();
+
+        // ════════════════════════════════════════════════════════════
+        // INSTALAR COMO APP (icono en pantalla de inicio)
+        // ════════════════════════════════════════════════════════════
+        let deferredInstallPrompt = null;
+        const isStandaloneAlready = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+        const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+        const installDismissed = localStorage.getItem('rs_install_dismissed') === '1';
+
+        function showInstallBanner(isIOSFlow) {
+            if(isStandaloneAlready || installDismissed) return;
+            const banner = document.getElementById('install-banner');
+            if(!banner) return;
+            if(isIOSFlow){
+                document.getElementById('install-banner-text').innerText = 'Toca el botón Compartir de Safari y luego "Añadir a pantalla de inicio".';
+                document.getElementById('install-banner-action').style.display = 'none';
+            }
+            banner.style.display = 'flex';
+        }
+
+        window.dismissInstallBanner = function() {
+            const banner = document.getElementById('install-banner');
+            if(banner) banner.style.display = 'none';
+            localStorage.setItem('rs_install_dismissed', '1');
+        }
+
+        window.triggerInstallPrompt = async function() {
+            if(!deferredInstallPrompt) return;
+            deferredInstallPrompt.prompt();
+            await deferredInstallPrompt.userChoice;
+            deferredInstallPrompt = null;
+            window.dismissInstallBanner();
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredInstallPrompt = e;
+            showInstallBanner(false);
+        });
+
+        window.addEventListener('appinstalled', () => {
+            window.dismissInstallBanner();
+        });
+
+        if(isIOS && !isStandaloneAlready && !installDismissed){
+            showInstallBanner(true);
+        }
+
+        if('serviceWorker' in navigator){
+            navigator.serviceWorker.register('sw.js').catch(() => {});
+        }
     </script>
 </body>
 </html>
