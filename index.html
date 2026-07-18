@@ -257,7 +257,7 @@
 
         <section id="view-general" class="view-section">
             <div style="margin-bottom: 15px; background: #eae6df; padding: 10px 14px; border-radius: var(--border-radius-sm); display:flex; align-items:center; gap:10px;">
-                <button class="btn-back-escape" style="background:#fff; border:1px solid #cbd5e1; color:var(--text-dark); flex-shrink:0; padding:7px 12px;" onclick="window.goToEventsHome()">◀ Atrás</button>
+                <button class="btn-back-escape" style="background:#fff; border:1px solid #cbd5e1; color:var(--text-dark); flex-shrink:0; padding:7px 12px;" onclick="history.back()">◀ Atrás</button>
                 <span id="active-trip-banner-text" style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:center; font-size:17px; font-weight:800; color:var(--primary);">Viaje</span>
             </div>
             <div class="card">
@@ -492,10 +492,11 @@
             const msgEl = document.getElementById('info-modal-message');
             if(msgEl) msgEl.innerText = message;
             document.getElementById('info-modal-popup').classList.add('active');
+            pushPopupStub('info-modal-popup');
         }
 
         window.closeInfoModal = function() {
-            document.getElementById('info-modal-popup').classList.remove('active');
+            history.back();
         }
 
         function assignNextColor() {
@@ -513,8 +514,8 @@
             localStorage.removeItem('rs_active_event');
             localStorage.removeItem('rs_active_user');
             currentTab = "events";
-            document.getElementById('login-screen').classList.remove('active');
             renderEngine();
+            pushTabState();
         }
 
         window.selectActiveEvent = function(id) {
@@ -524,17 +525,17 @@
             localStorage.removeItem('rs_active_user');
             currentTab = "general";
             renderEngine();
+            pushTabState();
         }
 
         window.loginAsUser = function(userId) {
             activeUserId = userId;
             localStorage.setItem('rs_active_user', userId);
-            document.getElementById('login-screen').classList.remove('active');
-            renderEngine();
+            history.back();
         }
 
         window.cancelEventLogin = function() {
-            document.getElementById('login-screen').classList.remove('active');
+            history.back();
         }
 
         window.changeIdentityInsideTrip = function() {
@@ -542,20 +543,22 @@
             localStorage.removeItem('rs_active_user');
             document.getElementById('login-screen').classList.add('active');
             renderEngine();
+            pushPopupStub('login-screen');
         }
 
         window.backToGeneralList = function() {
-            currentTab = "general";
-            renderEngine();
+            history.back();
         }
 
         window.goToCartView = function() {
             if(!activeUserId){
                 document.getElementById('login-screen').classList.add('active');
+                pushPopupStub('login-screen');
                 return;
             }
             currentTab = "cart";
             renderEngine();
+            pushTabState();
         }
 
         window.toggleHideClaimedItems = function() {
@@ -571,6 +574,7 @@
         window.openGlobalUsersModal = function() {
             document.getElementById('global-users-modal').classList.add('active');
             renderGlobalUsersList();
+            pushPopupStub('global-users-modal');
         }
 
         window.openUserCreationFromLogin = function() {
@@ -579,16 +583,11 @@
             document.getElementById('global-users-modal').classList.add('active');
             renderGlobalUsersList();
             setTimeout(() => document.getElementById('global-user-input')?.focus(), 50);
+            replacePopupStub('global-users-modal');
         }
 
         window.closeGlobalUsersModal = function() {
-            document.getElementById('global-users-modal').classList.remove('active');
-            if(returnToLoginAfterUserCreation){
-                returnToLoginAfterUserCreation = false;
-                document.getElementById('login-screen').classList.add('active');
-            }
-            checkAuthenticationState();
-            renderEngine();
+            history.back();
         }
 
         window.createGlobalUser = async function() {
@@ -600,9 +599,9 @@
 
             if(returnToLoginAfterUserCreation){
                 returnToLoginAfterUserCreation = false;
-                document.getElementById('global-users-modal').classList.remove('active');
-                document.getElementById('login-screen').classList.remove('active');
-                window.loginAsUser(created.id);
+                activeUserId = created.id;
+                localStorage.setItem('rs_active_user', created.id);
+                history.back();
             } else {
                 renderGlobalUsersList();
             }
@@ -673,11 +672,11 @@
                 grid.appendChild(btn);
             });
             document.getElementById('edit-user-popup').classList.add('active');
+            pushPopupStub('edit-user-popup');
         }
 
         window.closeEditUserPopup = function() {
-            document.getElementById('edit-user-popup').classList.remove('active');
-            editingUserId = null;
+            history.back();
         }
 
         window.saveUserEdits = async function() {
@@ -697,6 +696,7 @@
             deleteTarget = { type: 'event', id: eventId, name: eventName };
             window.renderDeleteModalPhase(1);
             document.getElementById('delete-confirm-popup').classList.add('active');
+            pushPopupStub('delete-confirm-popup');
         }
 
         window.triggerGroupDeleteFlow = function(groupId, groupName, event) {
@@ -704,6 +704,7 @@
             deleteTarget = { type: 'group', id: groupId, name: groupName };
             window.renderDeleteModalPhase(1);
             document.getElementById('delete-confirm-popup').classList.add('active');
+            pushPopupStub('delete-confirm-popup');
         }
 
         window.triggerProductDeleteFlow = function(productId, productName, event) {
@@ -711,11 +712,11 @@
             deleteTarget = { type: 'product', id: productId, name: productName };
             window.renderDeleteModalPhase('product');
             document.getElementById('delete-confirm-popup').classList.add('active');
+            pushPopupStub('delete-confirm-popup');
         }
 
         window.closeDeleteModal = function() {
-            document.getElementById('delete-confirm-popup').classList.remove('active');
-            deleteTarget = { type: null, id: null, name: "" };
+            history.back();
         }
 
         window.renderDeleteModalPhase = function(phase) {
@@ -840,11 +841,11 @@
             selectedProductForQtyId = productId;
             document.getElementById('qty-popup-title').innerText = `Unidades: ${prod.nombre}`;
             document.getElementById('qty-keyboard-popup').classList.add('active');
+            pushPopupStub('qty-keyboard-popup');
         }
 
         window.closeQtyKeyboard = function() {
-            document.getElementById('qty-keyboard-popup').classList.remove('active');
-            selectedProductForQtyId = "";
+            history.back();
         }
 
         window.selectQtyFromKeyboard = async function(num) {
@@ -886,6 +887,7 @@
             document.getElementById('cart-qty-title').innerText = `🧺 Compra parcial: ${prod.nombre}`;
             updateCartQtyPopupUI();
             document.getElementById('cart-qty-popup').classList.add('active');
+            pushPopupStub('cart-qty-popup');
         }
 
         function updateCartQtyPopupUI() {
@@ -911,8 +913,7 @@
         }
 
         window.closeCartQtyPopup = function() {
-            document.getElementById('cart-qty-popup').classList.remove('active');
-            cartQtyTargetProductId = null;
+            history.back();
         }
 
         window.saveCartQtyChanges = async function() {
@@ -939,11 +940,16 @@
 
         let addGroupExpanded = false;
         window.toggleAddGroupPanel = function() {
-            addGroupExpanded = !addGroupExpanded;
+            if(addGroupExpanded){
+                history.back();
+                return;
+            }
+            addGroupExpanded = true;
             const panel = document.getElementById('add-group-panel');
             const chevron = document.getElementById('add-group-chevron');
-            if(panel) panel.style.display = addGroupExpanded ? 'block' : 'none';
-            if(chevron) chevron.innerText = addGroupExpanded ? '▴' : '▾';
+            if(panel) panel.style.display = 'block';
+            if(chevron) chevron.innerText = '▴';
+            pushPopupStub('add-group-panel');
         }
 
         window.quickAddGroup = async function(nombre) {
@@ -962,22 +968,28 @@
             const title = document.getElementById('day-picker-title');
             if(title) title.innerText = `¿Qué día para "${base}"?`;
             document.getElementById('day-picker-popup').classList.add('active');
+            pushPopupStub('day-picker-popup');
         }
 
         window.closeDayPicker = function() {
-            document.getElementById('day-picker-popup').classList.remove('active');
-            pendingDayGroupBase = '';
+            history.back();
         }
 
         window.selectDayForGroup = async function(day) {
             if(!pendingDayGroupBase || !activeEventId) return;
             const nombre = `${pendingDayGroupBase} ${day}`;
-            window.closeDayPicker();
             const yaExiste = Object.values(db.grupos).some(g => g.evento_id === activeEventId && (g.nombre||'').trim().toLowerCase() === nombre.toLowerCase());
             if(yaExiste){
-                window.showInfoModal(`"${nombre}" ya existe en este viaje.`);
+                // Sustituimos el popup de "elegir día" por el de aviso, sin gastar una capa extra del historial
+                pendingDayGroupBase = '';
+                document.getElementById('day-picker-popup').classList.remove('active');
+                const msgEl = document.getElementById('info-modal-message');
+                if(msgEl) msgEl.innerText = `"${nombre}" ya existe en este viaje.`;
+                document.getElementById('info-modal-popup').classList.add('active');
+                replacePopupStub('info-modal-popup');
                 return;
             }
+            window.closeDayPicker();
             await sbInsert('grupos', { nombre, evento_id: activeEventId });
         }
 
@@ -997,6 +1009,7 @@
         window.toggleClaim = async function(productId) {
             if(!activeUserId){
                 document.getElementById('login-screen').classList.add('active');
+                pushPopupStub('login-screen');
                 return;
             }
             const prod = db.productos[productId];
@@ -1264,78 +1277,109 @@
 
         // ════════════════════════════════════════════════════════════
         // NAVEGACIÓN CON EL BOTÓN ATRÁS DEL MÓVIL/NAVEGADOR
-        // Usamos una única entrada "trampa" en el historial: cada vez que
-        // el usuario pulsa atrás, decidimos nosotros qué hacer (cerrar un
-        // popup si hay uno abierto, o retroceder un nivel de pantalla) en
-        // vez de dejar que el navegador recorra todo lo navegado.
+        //
+        // Regla de oro: cada "capa" que se abre hacia delante (una pestaña
+        // nueva, o cualquier ventana/popup) empuja una entrada real al
+        // historial del navegador. Cada "vuelta atrás" (botón propio de la
+        // app, botón del móvil, o el gesto del sistema) usa SIEMPRE
+        // history.back(), nunca una entrada nueva — así el historial real
+        // del navegador coincide exactamente con la profundidad en la que
+        // estamos, y "atrás" siempre retrocede un único paso de verdad:
+        // popup abierto → se cierra; si no hay popup, Cesta → Lista → 
+        // Escapadas → (una vez en Escapadas) sale de la app.
         // ════════════════════════════════════════════════════════════
-        // Los popups tipo "hoja inferior" (z-index 3000) pueden abrirse ENCIMA
-        // de los popups tipo "pantalla completa" (z-index 2000, ej. Lista de
-        // Usuarios). Van primero en la lista para cerrar siempre el que está
-        // más arriba visualmente antes que el que tiene detrás.
-        const POPUP_IDS = [
-            'edit-user-popup', 'delete-confirm-popup', 'qty-keyboard-popup',
-            'cart-qty-popup', 'day-picker-popup', 'info-modal-popup',
-            'login-screen', 'global-users-modal'
-        ];
+        let popupStack = [];
 
-        function getOpenPopupId() {
-            for(const id of POPUP_IDS){
-                const el = document.getElementById(id);
-                if(el && el.classList.contains('active')) return id;
+        function pushPopupStub(id) {
+            popupStack.push(id);
+            try { history.pushState({ popup: id }, '', ''); } catch(e) {}
+        }
+
+        function replacePopupStub(id) {
+            if(popupStack.length > 0){ popupStack[popupStack.length - 1] = id; }
+            else { popupStack.push(id); }
+            try { history.replaceState({ popup: id }, '', ''); } catch(e) {}
+        }
+
+        function pushTabState() {
+            try { history.pushState({ tab: currentTab, eventId: activeEventId, userId: activeUserId }, '', ''); } catch(e) {}
+        }
+
+        // Qué hacer para cerrar cada tipo de ventana/popup cuando le toca su turno
+        const POPUP_INTERNAL_CLOSERS = {
+            'info-modal-popup': () => {
+                document.getElementById('info-modal-popup').classList.remove('active');
+            },
+            'login-screen': () => {
+                document.getElementById('login-screen').classList.remove('active');
+            },
+            'global-users-modal': () => {
+                document.getElementById('global-users-modal').classList.remove('active');
+                if(returnToLoginAfterUserCreation){
+                    returnToLoginAfterUserCreation = false;
+                    document.getElementById('login-screen').classList.add('active');
+                    pushPopupStub('login-screen');
+                }
+                renderEngine();
+            },
+            'edit-user-popup': () => {
+                document.getElementById('edit-user-popup').classList.remove('active');
+                editingUserId = null;
+            },
+            'delete-confirm-popup': () => {
+                document.getElementById('delete-confirm-popup').classList.remove('active');
+                deleteTarget = { type: null, id: null, name: "" };
+            },
+            'qty-keyboard-popup': () => {
+                document.getElementById('qty-keyboard-popup').classList.remove('active');
+                selectedProductForQtyId = "";
+            },
+            'cart-qty-popup': () => {
+                document.getElementById('cart-qty-popup').classList.remove('active');
+                cartQtyTargetProductId = null;
+            },
+            'day-picker-popup': () => {
+                document.getElementById('day-picker-popup').classList.remove('active');
+                pendingDayGroupBase = '';
+            },
+            'add-group-panel': () => {
+                addGroupExpanded = false;
+                const panel = document.getElementById('add-group-panel');
+                const chevron = document.getElementById('add-group-chevron');
+                if(panel) panel.style.display = 'none';
+                if(chevron) chevron.innerText = '▾';
             }
-            return null;
-        }
+        };
 
-        function closePopupById(id) {
-            switch(id){
-                case 'info-modal-popup': window.closeInfoModal(); break;
-                case 'login-screen': window.cancelEventLogin(); break;
-                case 'global-users-modal': window.closeGlobalUsersModal(); break;
-                case 'delete-confirm-popup': window.closeDeleteModal(); break;
-                case 'edit-user-popup': window.closeEditUserPopup(); break;
-                case 'qty-keyboard-popup': window.closeQtyKeyboard(); break;
-                case 'cart-qty-popup': window.closeCartQtyPopup(); break;
-                case 'day-picker-popup': window.closeDayPicker(); break;
-            }
-        }
-
-        function armBackTrap() {
-            try { history.pushState({ trap: true }, '', ''); } catch(e) {}
-        }
-
-        window.addEventListener('popstate', () => {
-            // 1) Si hay cualquier tipo de ventana/popup abierta, solo la cerramos
-            const openPopup = getOpenPopupId();
-            if(openPopup){
-                closePopupById(openPopup);
-                armBackTrap();
+        window.addEventListener('popstate', (e) => {
+            // 1) Si según nuestra propia cuenta hay una ventana/popup pendiente
+            //    de cerrar, esta pulsación de "atrás" solo la cierra a ella.
+            if(popupStack.length > 0){
+                const topId = popupStack.pop();
+                const closer = POPUP_INTERNAL_CLOSERS[topId];
+                if(closer) closer();
                 return;
             }
-            // 2) Si el panel de "Añadir Categoría / Grupo" está desplegado, lo cerramos
-            if(addGroupExpanded){
-                window.toggleAddGroupPanel();
-                armBackTrap();
-                return;
-            }
-            // 3) Sin nada abierto: retrocedemos un único nivel dentro de la app
-            if(currentTab === 'cart'){
-                currentTab = 'general';
-            } else if(currentTab === 'general'){
-                currentTab = 'events';
-                activeEventId = "";
-                activeUserId = null;
+            // 2) Sin popups pendientes: sincronizamos pestaña/evento/usuario
+            //    con el estado que el navegador acaba de restaurar.
+            const state = e.state || { tab: 'events', eventId: '', userId: null };
+            currentTab = state.tab || 'events';
+            activeEventId = state.eventId || '';
+            activeUserId = state.userId || null;
+            if(currentTab === 'events'){
                 localStorage.removeItem('rs_active_event');
                 localStorage.removeItem('rs_active_user');
             } else {
-                // Ya estábamos en la pantalla principal: dejamos que el navegador salga de la app
-                return;
+                if(activeEventId) localStorage.setItem('rs_active_event', activeEventId); else localStorage.removeItem('rs_active_event');
+                if(activeUserId) localStorage.setItem('rs_active_user', activeUserId); else localStorage.removeItem('rs_active_user');
             }
             renderEngine();
-            armBackTrap();
+            // Si no queda ninguna entrada nuestra por debajo (estábamos en la
+            // primera pantalla), no hacemos nada más: el siguiente "atrás"
+            // del móvil saldrá de la app con total normalidad.
         });
 
-        armBackTrap();
+        try { history.replaceState({ tab: currentTab, eventId: activeEventId, userId: activeUserId }, '', ''); } catch(e) {}
 
         subscribeRealtime();
         loadAll();
