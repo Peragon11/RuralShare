@@ -366,6 +366,8 @@
         }
 
         let editingUserId = null;
+        let editingEventNameId = null;
+        let editingProductNameId = null;
         let selectedEditingColor = "";
         let deleteTarget = { type: null, id: null, name: "" };
 
@@ -893,13 +895,54 @@
             renderEngine();
         }
 
-        window.editEventNameFromList = async function(eventId, currentName, event) {
+        window.startEditEventName = function(eventId, event) {
             event.stopPropagation();
-            const nuevo = prompt('Nuevo nombre del viaje:', currentName);
-            if(nuevo === null) return;
-            const trimmed = nuevo.trim();
-            if(!trimmed || trimmed === currentName) return;
+            editingEventNameId = eventId;
+            renderEngine();
+            setTimeout(() => {
+                const input = document.getElementById('edit-event-name-input-' + eventId);
+                if(input){ input.focus(); input.select(); }
+            }, 30);
+        }
+
+        window.confirmEditEventName = async function(eventId, event) {
+            if(event) event.stopPropagation();
+            if(editingEventNameId !== eventId) return;
+            const input = document.getElementById('edit-event-name-input-' + eventId);
+            if(!input) return;
+            const trimmed = input.value.trim();
+            editingEventNameId = null;
+            const current = db.eventos[eventId];
+            if(!trimmed || (current && trimmed === current.nombre)){
+                renderEngine();
+                return;
+            }
             await sbUpdate('eventos', eventId, { nombre: trimmed });
+        }
+
+        window.startEditProductName = function(productId, event) {
+            if(event) event.stopPropagation();
+            editingProductNameId = productId;
+            renderEngine();
+            setTimeout(() => {
+                const input = document.getElementById('edit-product-name-input-' + productId);
+                if(input){ input.focus(); input.select(); }
+            }, 30);
+        }
+
+        window.confirmEditProductName = async function(productId, event) {
+            if(event) event.stopPropagation();
+            if(editingProductNameId !== productId) return;
+            const input = document.getElementById('edit-product-name-input-' + productId);
+            if(!input) return;
+            const trimmed = input.value.trim();
+            editingProductNameId = null;
+            const current = db.productos[productId];
+            if(!trimmed || (current && trimmed === current.nombre)){
+                renderEngine();
+                return;
+            }
+            await sbUpdate('productos', productId, { nombre: trimmed });
         }
         // ════════════════════════════════════════════════════════════
         // TECLADO NUMÉRICO (CANTIDAD DESEADA)
@@ -1188,18 +1231,33 @@
                     allTrips.forEach(ev => {
                         const div = document.createElement('div');
                         div.className = 'interactive-item';
-                        div.style.cursor = 'pointer';
-                        div.onclick = () => window.selectActiveEvent(ev.id);
                         const safeName = (ev.nombre||'').replace(/'/g, "\\'");
-                        div.innerHTML = `
-                            <div class="item-label-group">
-                                <span class="item-main-text" style="font-size:18px; font-weight:800;">${ev.nombre}</span>
-                            </div>
-                            <div style="display:flex; align-items:center; gap:8px;">
-                                <button style="background:#e2e8f0; color:var(--text-dark); border:none; width:38px; height:38px; border-radius:50%; font-size:15px; flex-shrink:0; display:flex; align-items:center; justify-content:center;" onclick="window.editEventNameFromList('${ev.id}', '${safeName}', event)">✏️</button>
-                                <button style="background:#fee2e2; color:#dc2626; border:none; width:38px; height:38px; border-radius:50%; font-size:16px; flex-shrink:0; display:flex; align-items:center; justify-content:center;" onclick="window.triggerEventDeleteFlow('${ev.id}', '${safeName}', event)">🗑️</button>
-                            </div>
-                        `;
+                        const isEditingName = editingEventNameId === ev.id;
+
+                        if(isEditingName){
+                            const safeAttr = (ev.nombre||'').replace(/"/g, '&quot;');
+                            div.innerHTML = `
+                                <div class="item-label-group" style="flex:1; min-width:0;">
+                                    <input type="text" id="edit-event-name-input-${ev.id}" value="${safeAttr}" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.confirmEditEventName('${ev.id}', event); }" style="font-size:17px; font-weight:800; border:2px solid var(--primary); border-radius:8px; padding:7px 10px; width:100%; background:#fff; color:var(--text-dark);">
+                                </div>
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <button style="background:#dcfce7; color:#16a34a; border:none; width:38px; height:38px; border-radius:50%; font-size:17px; flex-shrink:0; display:flex; align-items:center; justify-content:center;" onclick="window.confirmEditEventName('${ev.id}', event)">✅</button>
+                                </div>
+                            `;
+                            div.style.cursor = 'default';
+                        } else {
+                            div.style.cursor = 'pointer';
+                            div.onclick = () => window.selectActiveEvent(ev.id);
+                            div.innerHTML = `
+                                <div class="item-label-group">
+                                    <span class="item-main-text" style="font-size:18px; font-weight:800;">${ev.nombre}</span>
+                                </div>
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <button style="background:#e2e8f0; color:var(--text-dark); border:none; width:38px; height:38px; border-radius:50%; font-size:15px; flex-shrink:0; display:flex; align-items:center; justify-content:center;" onclick="window.startEditEventName('${ev.id}', event)">✏️</button>
+                                    <button style="background:#fee2e2; color:#dc2626; border:none; width:38px; height:38px; border-radius:50%; font-size:16px; flex-shrink:0; display:flex; align-items:center; justify-content:center;" onclick="window.triggerEventDeleteFlow('${ev.id}', '${safeName}', event)">🗑️</button>
+                                </div>
+                            `;
+                        }
                         eventsTarget.appendChild(div);
                     });
                 }
@@ -1273,7 +1331,11 @@
                         html += `
                             <div class="interactive-item ${cssClass}" style="${rowStyle} padding:9px 12px; margin-bottom:7px;">
                                 <div class="item-label-group" style="padding-right:6px;">
-                                    <span class="item-main-text" style="font-size:14px; ${nameStyle} ${checked ? 'text-decoration:line-through; opacity:0.7;' : ''}">${p.nombre}</span>
+                                    ${editingProductNameId === p.id ? `
+                                        <input type="text" id="edit-product-name-input-${p.id}" value="${(p.nombre||'').replace(/"/g, '&quot;')}" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.confirmEditProductName('${p.id}', event); }" onblur="window.confirmEditProductName('${p.id}', event)" style="font-size:14px; font-weight:700; border:2px solid var(--primary); border-radius:6px; padding:4px 8px; width:100%; background:#fff; color:var(--text-dark);">
+                                    ` : `
+                                        <span class="item-main-text" style="font-size:14px; cursor:text; ${nameStyle} ${checked ? 'text-decoration:line-through; opacity:0.7;' : ''}" onclick="window.startEditProductName('${p.id}', event)">${p.nombre}</span>
+                                    `}
                                 </div>
                                 <div style="display:flex; align-items:center; gap:5px;">
                                     <button class="btn-quantity-picker" style="padding:5px 10px; font-size:12.5px; margin-right:0; ${qtyBtnStyle}" onclick="window.openQtyKeyboardPopup('${p.id}', event)">x${p.cantidad_deseada || 1}</button>
