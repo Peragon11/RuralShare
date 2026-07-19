@@ -1084,7 +1084,7 @@
                 const nameLabel = activeUserObj
                     ? `<span onclick="window.changeIdentityInsideTrip()" style="cursor:pointer; font-size:13.5px; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:150px; display:inline-block;">${activeUserObj.nombre}</span>`
                     : '';
-                actionsTarget.innerHTML = `<button class="btn-back-escape" onclick="window.backToGeneralList()">◀ Lista</button>${nameLabel}`;
+                actionsTarget.innerHTML = `${nameLabel}`;
             }
 
             // 2. MODAL LOG-IN (cualquier amigo global puede entrar a la escapada)
@@ -1328,7 +1328,7 @@
         }
 
         function pushTabState() {
-            try { history.pushState({ tab: currentTab, eventId: activeEventId, userId: activeUserId }, '', ''); } catch(e) {}
+            try { history.pushState({ tab: currentTab, eventId: activeEventId }, '', ''); } catch(e) {}
         }
 
         // Qué hacer para cerrar cada tipo de ventana/popup cuando le toca su turno
@@ -1393,18 +1393,20 @@
                 if(closer) closer();
                 return;
             }
-            // 2) Sin popups pendientes: sincronizamos pestaña/evento/usuario
-            //    con el estado que el navegador acaba de restaurar.
-            const state = e.state || { tab: 'events', eventId: '', userId: null };
+            // 2) Sin popups pendientes: sincronizamos pestaña/evento con el
+            //    estado que el navegador acaba de restaurar. La identidad
+            //    (activeUserId) NO se toca aquí, para que se mantenga
+            //    activa al moverte entre la lista general y la cesta.
+            const state = e.state || { tab: 'events', eventId: '' };
             currentTab = state.tab || 'events';
             activeEventId = state.eventId || '';
-            activeUserId = state.userId || null;
             if(currentTab === 'events'){
+                activeUserId = null;
                 localStorage.removeItem('rs_active_event');
                 localStorage.removeItem('rs_active_user');
             } else {
                 if(activeEventId) localStorage.setItem('rs_active_event', activeEventId); else localStorage.removeItem('rs_active_event');
-                if(activeUserId) localStorage.setItem('rs_active_user', activeUserId); else localStorage.removeItem('rs_active_user');
+                if(activeUserId) localStorage.setItem('rs_active_user', activeUserId);
             }
             renderEngine();
             // Si no queda ninguna entrada nuestra por debajo (estábamos en la
@@ -1412,7 +1414,7 @@
             // del móvil saldrá de la app con total normalidad.
         });
 
-        try { history.replaceState({ tab: currentTab, eventId: activeEventId, userId: activeUserId }, '', ''); } catch(e) {}
+        try { history.replaceState({ tab: currentTab, eventId: activeEventId }, '', ''); } catch(e) {}
 
         subscribeRealtime();
         loadAll();
