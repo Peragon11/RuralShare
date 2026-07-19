@@ -77,12 +77,12 @@
         /* CABECERA SUPERIOR */
         .app-header { background: linear-gradient(135deg, #112a1d 0%, #1b4332 100%); color: white; padding: max(16px, env(safe-area-inset-top)) 20px 16px; border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg); box-shadow: var(--shadow-md); position: sticky; top: 0; z-index: 100; }
         .header-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-        .logo { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; gap: 6px; }
+        .logo { font-size: 25px; font-weight: 800; letter-spacing: -0.5px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; gap: 6px; }
         .header-actions { display: flex; align-items: center; gap: 8px; min-height: 40px; min-width: 0; flex-shrink: 1; }
 
         @media (max-width: 380px) {
             .app-header { padding-left: 14px; padding-right: 14px; }
-            .logo { font-size: 17px; }
+            .logo { font-size: 20px; }
             .btn-back-escape { padding: 6px 9px; font-size: 11px; }
             .header-actions { gap: 6px; }
         }
@@ -234,7 +234,7 @@
 
     <header class="app-header">
         <div class="header-top">
-            <div class="logo" onclick="window.goToEventsHome()"><img src="icono.png" alt="RuralShare" style="height:28px; width:28px; border-radius:8px; object-fit:cover; vertical-align:middle; margin-right:2px;"> RuralShare</div>
+            <div class="logo" onclick="window.goToEventsHome()"><img src="icono.png" alt="RuralShare" style="height:40px; width:40px; border-radius:10px; object-fit:cover; vertical-align:middle; margin-right:6px;"> RuralShare</div>
             <div class="header-actions" id="header-actions-container"></div>
         </div>
     </header>
@@ -1066,7 +1066,7 @@
                 document.getElementById('view-events').classList.add('active');
                 document.getElementById('view-general').classList.remove('active');
                 document.getElementById('view-cart').classList.remove('active');
-                actionsTarget.innerHTML = `<button class="btn-round-nav" onclick="window.openGlobalUsersModal()" title="Gestionar Amigos">👤</button>`;
+                actionsTarget.innerHTML = `<button class="btn-round-nav" onclick="window.openGlobalUsersModal()" title="Gestionar Amigos" style="background-color:#ffffff; border-color:#ffffff; display:flex; align-items:center; justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="8" r="4" fill="#111111"/><path d="M4 20c0-4.418 3.582-7 8-7s8 2.582 8 7" stroke="#111111" stroke-width="2" stroke-linecap="round"/></svg></button>`;
             } else if (currentTab === 'general') {
                 document.getElementById('view-events').classList.remove('active');
                 document.getElementById('view-general').classList.add('active');
