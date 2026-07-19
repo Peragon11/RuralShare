@@ -1157,7 +1157,7 @@
                     const isCollapsed = collapsedGroups.has(g.id);
                     let html = `
                         <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:${isCollapsed ? '0' : '14px'};">
-                            <button style="background:transparent; color:var(--primary); font-size:22px; font-weight:900; line-height:1; padding:2px 8px 2px 0; flex-shrink:0;" onclick="window.toggleGroupCollapse('${g.id}')">${isCollapsed ? '▸' : '▾'}</button>
+                            <span onclick="window.toggleGroupCollapse('${g.id}')" style="cursor:pointer; color:var(--primary); font-size:20px; font-weight:900; line-height:1; padding:4px 8px 4px 0; flex-shrink:0; user-select:none;">${isCollapsed ? '▸' : '▾'}</span>
                             <div class="subgroup-banner-title" style="margin-bottom:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; cursor:pointer;" onclick="window.toggleGroupCollapse('${g.id}')">📦 ${g.nombre}</div>
                             <button class="btn-pill-claim" style="border-color:#dc2626; color:#dc2626; flex-shrink:0;" onclick="window.triggerGroupDeleteFlow('${g.id}', '${safeGroupName}', event)">🗑️</button>
                         </div>
