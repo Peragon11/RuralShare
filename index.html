@@ -355,14 +355,10 @@
         let hideClaimedItems = false;
         let collapsedGroups = new Set();
         window.toggleGroupCollapse = function(groupId) {
-            try {
-                alert('DEBUG: toggleGroupCollapse llamada con id ' + groupId);
-                if(collapsedGroups.has(groupId)) collapsedGroups.delete(groupId);
-                else collapsedGroups.add(groupId);
-                renderEngine();
-            } catch(e) {
-                alert('DEBUG ERROR: ' + e.message);
-            }
+            groupId = String(groupId);
+            if(collapsedGroups.has(groupId)) collapsedGroups.delete(groupId);
+            else collapsedGroups.add(groupId);
+            renderEngine();
         }
 
         let editingUserId = null;
@@ -1159,7 +1155,7 @@
                     const card = document.createElement('div');
                     card.className = 'subgroup-card';
                     const safeGroupName = (g.nombre||'').replace(/'/g, "\\'");
-                    const isCollapsed = collapsedGroups.has(g.id);
+                    const isCollapsed = collapsedGroups.has(String(g.id));
                     let html = `
                         <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:${isCollapsed ? '0' : '14px'};">
                             <span onclick="window.toggleGroupCollapse('${g.id}')" style="cursor:pointer; color:var(--primary); font-size:20px; font-weight:900; line-height:1; padding:4px 8px 4px 0; flex-shrink:0; user-select:none;">${isCollapsed ? '▸' : '▾'}</span>
