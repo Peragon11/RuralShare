@@ -500,6 +500,7 @@
         }
 
         window.showInfoModal = function(message) {
+            if(document.activeElement && document.activeElement.blur) document.activeElement.blur();
             const msgEl = document.getElementById('info-modal-message');
             if(msgEl) msgEl.innerText = message;
             document.getElementById('info-modal-popup').classList.add('active');
