@@ -106,7 +106,7 @@
         input[type="text"]:focus { outline: none; border-color: #1b4332; background-color: white; }
         .btn-action { padding: 12px 18px; background-color: #1b4332; color: white; border: none; border-radius: var(--border-radius-sm); font-weight: 700; font-size: 15px; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
         
-        .subgroup-card { background: var(--bg-card); border-radius: var(--border-radius-lg); padding: 20px; margin-bottom: 24px; box-shadow: var(--shadow-sm); border: 1px solid rgba(0, 0, 0, 0.05); }
+        .subgroup-card { background: var(--bg-card); border-radius: var(--border-radius-lg); padding: 16px; margin-bottom: 10px; box-shadow: var(--shadow-sm); border: 1px solid rgba(0, 0, 0, 0.05); }
         .subgroup-banner-title { font-size: 16px; font-weight: 800; color: var(--accent); margin-bottom: 14px; }
         .inline-add-product-form { display: flex; gap: 8px; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px dashed #e2e8f0; }
         
@@ -301,6 +301,10 @@
         </div>
 
         <section id="view-cart" class="view-section">
+            <div style="margin-bottom: 15px; background: #eae6df; padding: 10px 14px; border-radius: var(--border-radius-sm); display:flex; align-items:center; gap:10px;">
+                <button class="btn-back-escape" style="background:#fff; border:1px solid #cbd5e1; color:var(--text-dark); flex-shrink:0; padding:7px 12px;" onclick="history.back()">◀ Atrás</button>
+                <span id="active-trip-banner-text-cart" style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:center; font-size:17px; font-weight:800; color:var(--primary);">Viaje</span>
+            </div>
             <div id="cart-list-target"></div>
         </section>
     </main>
@@ -545,7 +549,10 @@
             history.back();
         }
 
+        let pendingCartAfterLogin = false;
+
         window.changeIdentityInsideTrip = function() {
+            pendingCartAfterLogin = false;
             activeUserId = null;
             localStorage.removeItem('rs_active_user');
             document.getElementById('login-screen').classList.add('active');
@@ -559,6 +566,7 @@
 
         window.goToCartView = function() {
             if(!activeUserId){
+                pendingCartAfterLogin = true;
                 document.getElementById('login-screen').classList.add('active');
                 pushPopupStub('login-screen');
                 return;
@@ -796,7 +804,7 @@
                 if(e1) console.error(e1);
                 const { error: e2 } = await supabase.from('grupos').delete().eq('id', id);
                 if(e2) console.error(e2);
-                Object.values(db.productos).forEach(p => { if(p.grupo_id === id) delete db.productos[p.id]; });
+                Object.values(db.productos).forEach(p => { if(String(p.grupo_id) === String(id)) delete db.productos[p.id]; });
                 delete db.grupos[id];
                 renderEngine();
             } else if(type === 'event'){
@@ -1004,7 +1012,7 @@
             const el = document.getElementById(`inline-input-${grupoId}`);
             if(!el || !el.value.trim()) return;
             const nombre = el.value.trim();
-            const yaExiste = Object.values(db.productos).some(p => p.grupo_id === grupoId && (p.nombre||'').trim().toLowerCase() === nombre.toLowerCase());
+            const yaExiste = Object.values(db.productos).some(p => String(p.grupo_id) === String(grupoId) && (p.nombre||'').trim().toLowerCase() === nombre.toLowerCase());
             if(yaExiste){
                 window.showInfoModal(`"${nombre}" ya está en este grupo.`);
                 return;
@@ -1015,6 +1023,7 @@
 
         window.toggleClaim = async function(productId) {
             if(!activeUserId){
+                pendingCartAfterLogin = false;
                 document.getElementById('login-screen').classList.add('active');
                 pushPopupStub('login-screen');
                 return;
@@ -1106,6 +1115,10 @@
                 const tripBannerText = document.getElementById('active-trip-banner-text');
                 if(tripBannerText) {
                     tripBannerText.innerText = currentEvent.nombre;
+                }
+                const tripBannerTextCart = document.getElementById('active-trip-banner-text-cart');
+                if(tripBannerTextCart) {
+                    tripBannerTextCart.innerText = currentEvent.nombre;
                 }
             }
 
@@ -1326,6 +1339,11 @@
             'login-screen': () => {
                 document.getElementById('login-screen').classList.remove('active');
                 renderEngine();
+                const shouldGoToCart = pendingCartAfterLogin && activeUserId;
+                pendingCartAfterLogin = false;
+                if(shouldGoToCart){
+                    window.goToCartView();
+                }
             },
             'global-users-modal': () => {
                 document.getElementById('global-users-modal').classList.remove('active');
@@ -1334,6 +1352,7 @@
                     document.getElementById('login-screen').classList.add('active');
                     pushPopupStub('login-screen');
                 }
+                pendingCartAfterLogin = false;
                 renderEngine();
             },
             'edit-user-popup': () => {
