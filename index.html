@@ -642,7 +642,10 @@
                 div.style.borderLeft = `14px solid ${u.color}`;
                 div.innerHTML = `
                     <span class="item-main-text" style="font-size:14.5px; font-weight:800; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.35);">${u.nombre}</span>
-                    <button class="btn-pill-claim" style="border-color:#fff; color:#fff; background:rgba(0,0,0,0.2);" onclick="window.openEditUserPopup('${u.id}')">✏️</button>
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <button class="btn-pill-claim" style="border-color:#fff; color:#fff; background:rgba(0,0,0,0.2);" onclick="window.openEditUserPopup('${u.id}')">✏️</button>
+                        <button class="btn-pill-claim" style="border-color:#fff; color:#fff; background:rgba(0,0,0,0.2);" onclick="window.triggerUserDeleteFlow('${u.id}', '${(u.nombre||'').replace(/'/g, "\\'")}', event)">🗑️</button>
+                    </div>
                 `;
                 target.appendChild(div);
             });
@@ -734,6 +737,14 @@
             pushPopupStub('delete-confirm-popup');
         }
 
+        window.triggerUserDeleteFlow = function(userId, userName, event) {
+            event.stopPropagation();
+            deleteTarget = { type: 'usuario', id: userId, name: userName };
+            window.renderDeleteModalPhase('usuario');
+            document.getElementById('delete-confirm-popup').classList.add('active');
+            pushPopupStub('delete-confirm-popup');
+        }
+
         window.closeDeleteModal = function() {
             history.back();
         }
@@ -748,6 +759,20 @@
                     <div style="font-weight:800; font-size:16px; color:#b91c1c; margin-bottom:6px; text-align:left;">🗑️ ¿Eliminar producto?</div>
                     <div style="font-size:13.5px; color:var(--text-dark); margin-bottom:18px; text-align:left; line-height:1.4;">
                         ¿Eliminar <strong>"${deleteTarget.name}"</strong> de la lista? No se puede deshacer.
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn-key key-wide" style="flex:1; margin:0;" onclick="window.closeDeleteModal()">No</button>
+                        <button class="btn-action" style="flex:1; background-color:#dc2626;" onclick="window.executeDeletion()">Sí, eliminar</button>
+                    </div>
+                `;
+                return;
+            }
+
+            if (phase === 'usuario') {
+                container.innerHTML = `
+                    <div style="font-weight:800; font-size:16px; color:#b91c1c; margin-bottom:6px; text-align:left;">🗑️ ¿Eliminar amigo?</div>
+                    <div style="font-size:13.5px; color:var(--text-dark); margin-bottom:18px; text-align:left; line-height:1.4;">
+                        ¿Eliminar a <strong>"${deleteTarget.name}"</strong>? Se soltarán todos los productos que tuviera cogidos en cualquier escapada. No se puede deshacer.
                     </div>
                     <div style="display:flex; gap:10px;">
                         <button class="btn-key key-wide" style="flex:1; margin:0;" onclick="window.closeDeleteModal()">No</button>
@@ -827,6 +852,23 @@
                 delete db.eventos[id];
 
                 if(activeEventId === id) window.goToEventsHome();
+                renderEngine();
+            } else if(type === 'usuario'){
+                const { error: e1 } = await supabase.from('productos').update({ usuario_id: null, cantidad_comprada: 0 }).eq('usuario_id', id);
+                if(e1) console.error(e1);
+                const { error: e2 } = await supabase.from('usuarios').delete().eq('id', id);
+                if(e2) console.error(e2);
+
+                Object.values(db.productos).forEach(p => {
+                    if(String(p.usuario_id) === String(id)){ p.usuario_id = null; p.cantidad_comprada = 0; }
+                });
+                delete db.usuarios[id];
+
+                if(String(activeUserId) === String(id)){
+                    activeUserId = null;
+                    localStorage.removeItem('rs_active_user');
+                }
+                renderGlobalUsersList();
                 renderEngine();
             }
 
@@ -1066,7 +1108,7 @@
                 document.getElementById('view-events').classList.add('active');
                 document.getElementById('view-general').classList.remove('active');
                 document.getElementById('view-cart').classList.remove('active');
-                actionsTarget.innerHTML = `<button class="btn-round-nav" onclick="window.openGlobalUsersModal()" title="Gestionar Amigos" style="background-color:#ffffff; border-color:#ffffff; display:flex; align-items:center; justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="8" r="4" fill="#111111"/><path d="M4 20c0-4.418 3.582-7 8-7s8 2.582 8 7" stroke="#111111" stroke-width="2" stroke-linecap="round"/></svg></button>`;
+                actionsTarget.innerHTML = `<button class="btn-round-nav" onclick="window.openGlobalUsersModal()" title="Gestionar Amigos" style="background-color:#ffffff; border-color:#ffffff;">👤</button>`;
             } else if (currentTab === 'general') {
                 document.getElementById('view-events').classList.remove('active');
                 document.getElementById('view-general').classList.add('active');
