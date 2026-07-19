@@ -1232,7 +1232,7 @@
                         const div = document.createElement('div');
                         div.className = 'interactive-item';
                         const safeName = (ev.nombre||'').replace(/'/g, "\\'");
-                        const isEditingName = editingEventNameId === ev.id;
+                        const isEditingName = editingEventNameId !== null && String(editingEventNameId) === String(ev.id);
 
                         if(isEditingName){
                             const safeAttr = (ev.nombre||'').replace(/"/g, '&quot;');
@@ -1331,7 +1331,7 @@
                         html += `
                             <div class="interactive-item ${cssClass}" style="${rowStyle} padding:9px 12px; margin-bottom:7px;">
                                 <div class="item-label-group" style="padding-right:6px;">
-                                    ${editingProductNameId === p.id ? `
+                                    ${editingProductNameId !== null && String(editingProductNameId) === String(p.id) ? `
                                         <input type="text" id="edit-product-name-input-${p.id}" value="${(p.nombre||'').replace(/"/g, '&quot;')}" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.confirmEditProductName('${p.id}', event); }" onblur="window.confirmEditProductName('${p.id}', event)" style="font-size:14px; font-weight:700; border:2px solid var(--primary); border-radius:6px; padding:4px 8px; width:100%; background:#fff; color:var(--text-dark);">
                                     ` : `
                                         <span class="item-main-text" style="font-size:14px; cursor:text; ${nameStyle} ${checked ? 'text-decoration:line-through; opacity:0.7;' : ''}" onclick="window.startEditProductName('${p.id}', event)">${p.nombre}</span>
