@@ -102,8 +102,8 @@
         .card-title { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #1b4332; margin-bottom: 14px; }
         
         .input-row { display: flex; gap: 8px; min-width: 0; }
-        input[type="text"] { flex: 1; min-width: 0; padding: 12px 16px; border: 2px solid #eae6df; border-radius: var(--border-radius-sm); font-size: 16px; background-color: #faf9f6; color: var(--text-dark); }
-        input[type="text"]:focus { outline: none; border-color: #1b4332; background-color: white; }
+        input[type="text"], input[type="search"] { flex: 1; min-width: 0; padding: 12px 16px; border: 2px solid #eae6df; border-radius: var(--border-radius-sm); font-size: 16px; background-color: #faf9f6; color: var(--text-dark); -webkit-appearance: none; appearance: none; }
+        input[type="text"]:focus, input[type="search"]:focus { outline: none; border-color: #1b4332; background-color: white; }
         .btn-action { padding: 12px 18px; background-color: #1b4332; color: white; border: none; border-radius: var(--border-radius-sm); font-weight: 700; font-size: 15px; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
         
         .subgroup-card { background: var(--bg-card); border-radius: var(--border-radius-lg); padding: 16px; margin-bottom: 10px; box-shadow: var(--shadow-sm); border: 1px solid rgba(0, 0, 0, 0.05); }
@@ -160,7 +160,7 @@
             <div class="flow-title">👥 Lista de Usuarios</div>
             <div class="flow-subtitle">Añade o edita los perfiles del grupo de viaje:</div>
             <div class="input-row" style="margin-bottom: 14px;">
-                <input type="text" name="campo_texto_1" autocomplete="one-time-code" data-lpignore="true" data-1p-ignore="true" data-form-type="other" readonly onfocus="this.removeAttribute('readonly');" autocorrect="off" autocapitalize="off" spellcheck="false" id="global-user-input" placeholder="Nombre" onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.createGlobalUser(); }">
+                <input type="search" name="campo_texto_1" autocomplete="one-time-code" data-lpignore="true" data-1p-ignore="true" data-form-type="other" readonly onfocus="this.removeAttribute('readonly');" autocorrect="off" autocapitalize="off" spellcheck="false" id="global-user-input" placeholder="Nombre" onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.createGlobalUser(); }">
                 <button class="btn-action" onclick="window.createGlobalUser()">Guardar</button>
             </div>
             <div class="scrollable-grid-list" id="global-users-list-target"></div>
@@ -178,7 +178,7 @@
             <div style="font-weight: 800; font-size: 16px; color: var(--primary); margin-bottom: 2px; text-align:left;">✏️ Editar Amigo</div>
             <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px; text-align:left;">Modifica los datos y escoge un color libre:</div>
             <div class="input-row" style="margin-bottom: 14px;">
-                <input type="text" name="campo_texto_2" autocomplete="one-time-code" data-lpignore="true" data-1p-ignore="true" data-form-type="other" readonly onfocus="this.removeAttribute('readonly');" autocorrect="off" autocapitalize="off" spellcheck="false" id="edit-user-name-input" placeholder="Nombre">
+                <input type="search" name="campo_texto_2" autocomplete="one-time-code" data-lpignore="true" data-1p-ignore="true" data-form-type="other" readonly onfocus="this.removeAttribute('readonly');" autocorrect="off" autocapitalize="off" spellcheck="false" id="edit-user-name-input" placeholder="Nombre">
             </div>
             <div class="popup-section-title">Colores Libres (Los ocupados muestran una ✕)</div>
             <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 18px;" id="edit-user-colors-grid"></div>
@@ -245,7 +245,7 @@
             <div class="card">
                 <div class="card-title">🏕️ Crear Nuevo Viaje</div>
                 <div class="input-row">
-                    <input type="text" name="campo_texto_3" autocomplete="one-time-code" data-lpignore="true" data-1p-ignore="true" data-form-type="other" readonly onfocus="this.removeAttribute('readonly');" autocorrect="off" autocapitalize="off" spellcheck="false" id="event-input" placeholder="Nombre del destino/viaje" onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.triggerEventCreationWizard(); }">
+                    <input type="search" name="campo_texto_3" autocomplete="one-time-code" data-lpignore="true" data-1p-ignore="true" data-form-type="other" readonly onfocus="this.removeAttribute('readonly');" autocorrect="off" autocapitalize="off" spellcheck="false" id="event-input" placeholder="Nombre del destino/viaje" onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.triggerEventCreationWizard(); }">
                     <button class="btn-action" onclick="window.triggerEventCreationWizard()">Crear viaje</button>
                 </div>
             </div>
@@ -275,7 +275,7 @@
                         <button class="btn-selection-row" style="justify-content:center; text-align:center; font-size:13.5px; padding:12px 8px;" onclick="window.openDayPicker('Cena')">🌙 Cena</button>
                     </div>
                     <div class="input-row">
-                        <input type="text" name="campo_texto_4" autocomplete="one-time-code" data-lpignore="true" data-1p-ignore="true" data-form-type="other" readonly onfocus="this.removeAttribute('readonly');" autocorrect="off" autocapitalize="off" spellcheck="false" id="subgroup-input" placeholder="O escribe un grupo personalizado..." onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.addSubgroup(); }">
+                        <input type="search" name="campo_texto_4" autocomplete="one-time-code" data-lpignore="true" data-1p-ignore="true" data-form-type="other" readonly onfocus="this.removeAttribute('readonly');" autocorrect="off" autocapitalize="off" spellcheck="false" id="subgroup-input" placeholder="O escribe un grupo personalizado..." onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.addSubgroup(); }">
                         <button class="btn-action" onclick="window.addSubgroup()">Añadir</button>
                     </div>
                 </div>
@@ -1238,7 +1238,7 @@
                             const safeAttr = (ev.nombre||'').replace(/"/g, '&quot;');
                             div.innerHTML = `
                                 <div class="item-label-group" style="flex:1; min-width:0;">
-                                    <input type="text" name="campo_texto_5" autocomplete="one-time-code" data-lpignore="true" data-1p-ignore="true" data-form-type="other" readonly onfocus="this.removeAttribute('readonly');" autocorrect="off" autocapitalize="off" spellcheck="false" id="edit-event-name-input-${ev.id}" value="${safeAttr}" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.confirmEditEventName('${ev.id}', event); }" style="font-size:17px; font-weight:800; border:2px solid var(--primary); border-radius:8px; padding:7px 10px; width:100%; background:#fff; color:var(--text-dark);">
+                                    <input type="search" name="campo_texto_5" autocomplete="one-time-code" data-lpignore="true" data-1p-ignore="true" data-form-type="other" readonly onfocus="this.removeAttribute('readonly');" autocorrect="off" autocapitalize="off" spellcheck="false" id="edit-event-name-input-${ev.id}" value="${safeAttr}" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.confirmEditEventName('${ev.id}', event); }" style="font-size:17px; font-weight:800; border:2px solid var(--primary); border-radius:8px; padding:7px 10px; width:100%; background:#fff; color:var(--text-dark);">
                                 </div>
                                 <div style="display:flex; align-items:center; gap:8px;">
                                     <button style="background:#dcfce7; color:#16a34a; border:none; width:38px; height:38px; border-radius:50%; font-size:17px; flex-shrink:0; display:flex; align-items:center; justify-content:center;" onclick="window.confirmEditEventName('${ev.id}', event)">✅</button>
@@ -1295,7 +1295,7 @@
                     if(!isCollapsed){
                         html += `
                         <div class="inline-add-product-form">
-                            <input type="text" name="campo_texto_6" autocomplete="one-time-code" data-lpignore="true" data-1p-ignore="true" data-form-type="other" readonly onfocus="this.removeAttribute('readonly');" autocorrect="off" autocapitalize="off" spellcheck="false" id="inline-input-${g.id}" placeholder="Escribir artículo..." onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.addProductInline('${g.id}'); }">
+                            <input type="search" name="campo_texto_6" autocomplete="one-time-code" data-lpignore="true" data-1p-ignore="true" data-form-type="other" readonly onfocus="this.removeAttribute('readonly');" autocorrect="off" autocapitalize="off" spellcheck="false" id="inline-input-${g.id}" placeholder="Escribir artículo..." onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.addProductInline('${g.id}'); }">
                             <button class="btn-action" onclick="window.addProductInline('${g.id}')">+</button>
                         </div>
                         <div>
@@ -1332,7 +1332,7 @@
                             <div class="interactive-item ${cssClass}" style="${rowStyle} padding:9px 12px; margin-bottom:7px;">
                                 <div class="item-label-group" style="padding-right:6px;">
                                     ${editingProductNameId !== null && String(editingProductNameId) === String(p.id) ? `
-                                        <input type="text" name="campo_texto_7" autocomplete="one-time-code" data-lpignore="true" data-1p-ignore="true" data-form-type="other" readonly onfocus="this.removeAttribute('readonly');" autocorrect="off" autocapitalize="off" spellcheck="false" id="edit-product-name-input-${p.id}" value="${(p.nombre||'').replace(/"/g, '&quot;')}" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.confirmEditProductName('${p.id}', event); }" onblur="window.confirmEditProductName('${p.id}', event)" style="font-size:14px; font-weight:700; border:2px solid var(--primary); border-radius:6px; padding:4px 8px; width:100%; background:#fff; color:var(--text-dark);">
+                                        <input type="search" name="campo_texto_7" autocomplete="one-time-code" data-lpignore="true" data-1p-ignore="true" data-form-type="other" readonly onfocus="this.removeAttribute('readonly');" autocorrect="off" autocapitalize="off" spellcheck="false" id="edit-product-name-input-${p.id}" value="${(p.nombre||'').replace(/"/g, '&quot;')}" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.confirmEditProductName('${p.id}', event); }" onblur="window.confirmEditProductName('${p.id}', event)" style="font-size:14px; font-weight:700; border:2px solid var(--primary); border-radius:6px; padding:4px 8px; width:100%; background:#fff; color:var(--text-dark);">
                                     ` : `
                                         <span class="item-main-text" style="font-size:14px; cursor:text; ${nameStyle} ${checked ? 'text-decoration:line-through; opacity:0.7;' : ''}" onclick="window.startEditProductName('${p.id}', event)">${p.nombre}</span>
                                     `}
