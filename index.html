@@ -245,7 +245,7 @@
             <div class="card">
                 <div class="card-title">🏕️ Crear Nuevo Viaje</div>
                 <div class="input-row">
-                    <input type="search" name="campo_texto_3" autocomplete="one-time-code" data-lpignore="true" data-1p-ignore="true" data-form-type="other" autocorrect="off" autocapitalize="sentences" spellcheck="false" id="event-input" placeholder="Nombre del destino/viaje" onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.triggerEventCreationWizard(); }">
+                    <input type="search" name="campo_texto_3" autocomplete="one-time-code" data-lpignore="true" data-1p-ignore="true" data-form-type="other" autocorrect="off" autocapitalize="sentences" spellcheck="false" id="event-input" placeholder="Escribir nombre" onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.triggerEventCreationWizard(); }">
                     <button class="btn-action" onclick="window.triggerEventCreationWizard()">Crear viaje</button>
                 </div>
             </div>
@@ -357,6 +357,7 @@
         let selectedProductForQtyId = "";
         let currentTab = "events";
         let hideClaimedItems = false;
+        let hideBoughtInCart = false;
         let collapsedGroups = new Set();
         window.toggleGroupCollapse = function(groupId) {
             groupId = String(groupId);
@@ -584,6 +585,11 @@
 
         window.toggleHideClaimedItems = function() {
             hideClaimedItems = !hideClaimedItems;
+            renderEngine();
+        }
+
+        window.toggleHideBoughtInCart = function() {
+            hideBoughtInCart = !hideBoughtInCart;
             renderEngine();
         }
 
@@ -1359,17 +1365,28 @@
 
                 const activeGrupos = Object.values(db.grupos).filter(g => g.evento_id === activeEventId);
                 let absoluteTotalItemsInCart = 0;
+                let visibleItemsInCart = 0;
+
+                const filterBarCart = document.createElement('label');
+                filterBarCart.style.cssText = 'display:flex; align-items:center; gap:10px; background:#faf9f6; border:1px solid #eae6df; padding:10px 14px; border-radius:var(--border-radius-sm); margin-bottom:16px; cursor:pointer;';
+                filterBarCart.innerHTML = `
+                    <input type="checkbox" ${hideBoughtInCart ? 'checked' : ''} onchange="window.toggleHideBoughtInCart()" style="width:20px; height:20px; flex-shrink:0;">
+                    <span style="font-size:13.5px; font-weight:700; color:var(--text-dark);">🙈 Ocultar ya comprados</span>
+                `;
+                cartTarget.appendChild(filterBarCart);
 
                 activeGrupos.forEach(g => {
-                    const myCartItemsInGroup = Object.values(db.productos).filter(p => p.grupo_id === g.id && p.usuario_id === activeUserId);
+                    const allMyCartItemsInGroup = Object.values(db.productos).filter(p => p.grupo_id === g.id && p.usuario_id === activeUserId);
+                    absoluteTotalItemsInCart += allMyCartItemsInGroup.length;
+                    const myCartItemsInGroup = hideBoughtInCart ? allMyCartItemsInGroup.filter(p => !isProductChecked(p)) : allMyCartItemsInGroup;
+                    visibleItemsInCart += myCartItemsInGroup.length;
 
                     if (myCartItemsInGroup.length > 0) {
-                        absoluteTotalItemsInCart += myCartItemsInGroup.length;
 
                         const sgCardInCart = document.createElement('div');
                         sgCardInCart.className = 'subgroup-card';
                         sgCardInCart.style.marginBottom = '16px';
-                        sgCardInCart.innerHTML = `<div class="subgroup-banner-title" style="color:var(--primary); font-size:14px; margin-bottom:12px; font-weight:800;">📦 Sección: ${g.nombre}</div>`;
+                        sgCardInCart.innerHTML = `<div class="subgroup-banner-title" style="color:var(--primary); font-size:14px; margin-bottom:12px; font-weight:800;">📦 ${g.nombre}</div>`;
 
                         const itemsContainer = document.createElement('div');
 
@@ -1419,6 +1436,11 @@
 
                 if(absoluteTotalItemsInCart === 0 && currentTab === 'cart') {
                     cartTarget.innerHTML = '<div class="empty-illustration"><span>🧺</span>No tienes productos asignados. Selecciona "Lo compro" en la lista general.</div>';
+                } else if(visibleItemsInCart === 0 && currentTab === 'cart') {
+                    const emptyMsg = document.createElement('div');
+                    emptyMsg.className = 'empty-illustration';
+                    emptyMsg.innerHTML = '<span>✅</span>Ya has comprado todo lo que tenías cogido.';
+                    cartTarget.appendChild(emptyMsg);
                 }
             }
         }
