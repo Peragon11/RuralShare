@@ -352,8 +352,27 @@
         // Caché local (se mantiene sincronizada con Supabase en tiempo real)
         let db = { usuarios: {}, eventos: {}, grupos: {}, productos: {} };
 
+        function saveIdentityForEvent(eventId, userId) {
+            if(!eventId) return;
+            try { localStorage.setItem('rs_user_for_event_' + eventId, userId); } catch(e) {}
+        }
+        function getSavedIdentityForEvent(eventId) {
+            if(!eventId) return null;
+            try { return localStorage.getItem('rs_user_for_event_' + eventId); } catch(e) { return null; }
+        }
+        function clearSavedIdentityEverywhere(userId) {
+            try {
+                for(let i = localStorage.length - 1; i >= 0; i--){
+                    const key = localStorage.key(i);
+                    if(key && key.indexOf('rs_user_for_event_') === 0 && localStorage.getItem(key) === String(userId)){
+                        localStorage.removeItem(key);
+                    }
+                }
+            } catch(e) {}
+        }
+
         let activeEventId = localStorage.getItem('rs_active_event') || "";
-        let activeUserId = localStorage.getItem('rs_active_user') || null;
+        let activeUserId = activeEventId ? (getSavedIdentityForEvent(activeEventId) || null) : null;
         let selectedProductForQtyId = "";
         let currentTab = "events";
         let hideClaimedItems = false;
@@ -530,7 +549,6 @@
             activeEventId = "";
             activeUserId = null;
             localStorage.removeItem('rs_active_event');
-            localStorage.removeItem('rs_active_user');
             currentTab = "events";
             renderEngine();
             pushTabState();
@@ -538,9 +556,9 @@
 
         window.selectActiveEvent = function(id) {
             activeEventId = id;
-            activeUserId = null;
+            const savedUserId = getSavedIdentityForEvent(id);
+            activeUserId = (savedUserId && db.usuarios[savedUserId]) ? savedUserId : null;
             localStorage.setItem('rs_active_event', id);
-            localStorage.removeItem('rs_active_user');
             currentTab = "general";
             renderEngine();
             pushTabState();
@@ -548,7 +566,7 @@
 
         window.loginAsUser = function(userId) {
             activeUserId = userId;
-            localStorage.setItem('rs_active_user', userId);
+            saveIdentityForEvent(activeEventId, userId);
             history.back();
         }
 
@@ -561,7 +579,6 @@
         window.changeIdentityInsideTrip = function() {
             pendingCartAfterLogin = false;
             activeUserId = null;
-            localStorage.removeItem('rs_active_user');
             document.getElementById('login-screen').classList.add('active');
             renderEngine();
             pushPopupStub('login-screen');
@@ -627,7 +644,7 @@
             if(returnToLoginAfterUserCreation){
                 returnToLoginAfterUserCreation = false;
                 activeUserId = created.id;
-                localStorage.setItem('rs_active_user', created.id);
+                saveIdentityForEvent(activeEventId, created.id);
                 history.back();
             } else {
                 renderGlobalUsersList();
@@ -871,10 +888,10 @@
                     if(String(p.usuario_id) === String(id)){ p.usuario_id = null; p.cantidad_comprada = 0; }
                 });
                 delete db.usuarios[id];
+                clearSavedIdentityEverywhere(id);
 
                 if(String(activeUserId) === String(id)){
                     activeUserId = null;
-                    localStorage.removeItem('rs_active_user');
                 }
                 renderGlobalUsersList();
                 renderEngine();
@@ -896,7 +913,6 @@
             activeEventId = created.id;
             activeUserId = null;
             localStorage.setItem('rs_active_event', created.id);
-            localStorage.removeItem('rs_active_user');
             currentTab = "general";
             renderEngine();
         }
@@ -1547,10 +1563,8 @@
             if(currentTab === 'events'){
                 activeUserId = null;
                 localStorage.removeItem('rs_active_event');
-                localStorage.removeItem('rs_active_user');
             } else {
                 if(activeEventId) localStorage.setItem('rs_active_event', activeEventId); else localStorage.removeItem('rs_active_event');
-                if(activeUserId) localStorage.setItem('rs_active_user', activeUserId);
             }
             renderEngine();
             // Si no queda ninguna entrada nuestra por debajo (estábamos en la
