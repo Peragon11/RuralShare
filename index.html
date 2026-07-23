@@ -1328,7 +1328,7 @@
                         const allProds = Object.values(db.productos).filter(p => p.grupo_id === g.id);
                         const prods = hideClaimedItems ? allProds.filter(p => !p.usuario_id) : allProds;
                         if(allProds.length > 0 && prods.length === 0){
-                            html += `<div class="group-empty" style="font-size:12.5px; color:var(--text-muted); font-style:italic; padding:6px 2px;">Todo oculto por el filtro (ya cogidos o comprados).</div>`;
+                            html += `<div class="group-empty" style="font-size:12.5px; color:var(--text-muted); font-style:italic; padding:6px 2px;">Todo lo de este grupo está cogido o comprado.</div>`;
                         }
                         prods.forEach(p => {
                         let rowStyle = `border-left: 8px solid #cbd5e1;`;
