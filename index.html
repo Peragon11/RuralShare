@@ -579,6 +579,9 @@
         window.changeIdentityInsideTrip = function() {
             pendingCartAfterLogin = false;
             activeUserId = null;
+            if(activeEventId){
+                try { localStorage.removeItem('rs_user_for_event_' + activeEventId); } catch(e) {}
+            }
             document.getElementById('login-screen').classList.add('active');
             renderEngine();
             pushPopupStub('login-screen');
@@ -1150,7 +1153,7 @@
             }
             const prod = db.productos[productId];
             if(!prod) return;
-            if(prod.usuario_id === activeUserId) {
+            if(String(prod.usuario_id) === String(activeUserId)) {
                 await sbUpdate('productos', productId, { usuario_id: null, cantidad_comprada: 0 });
             } else {
                 await sbUpdate('productos', productId, { usuario_id: activeUserId });
@@ -1348,7 +1351,7 @@
                                 delBtnStyle = `border-color:rgba(255,255,255,0.7); color:#fff; background:rgba(0,0,0,0.15);`;
                                 qtyBtnStyle = `background:rgba(255,255,255,0.9); border-color:#fff; color:${c}; font-weight:800;`;
                             }
-                            bTxt = (p.usuario_id === activeUserId) ? 'Soltar' : 'Quitar';
+                            bTxt = (String(p.usuario_id) === String(activeUserId)) ? 'Soltar' : 'Quitar';
                         }
                         html += `
                             <div class="interactive-item ${cssClass}" style="${rowStyle} padding:9px 12px; margin-bottom:7px;">
@@ -1392,7 +1395,7 @@
                 cartTarget.appendChild(filterBarCart);
 
                 activeGrupos.forEach(g => {
-                    const allMyCartItemsInGroup = Object.values(db.productos).filter(p => p.grupo_id === g.id && p.usuario_id === activeUserId);
+                    const allMyCartItemsInGroup = Object.values(db.productos).filter(p => p.grupo_id === g.id && String(p.usuario_id) === String(activeUserId));
                     absoluteTotalItemsInCart += allMyCartItemsInGroup.length;
                     const myCartItemsInGroup = hideBoughtInCart ? allMyCartItemsInGroup.filter(p => !isProductChecked(p)) : allMyCartItemsInGroup;
                     visibleItemsInCart += myCartItemsInGroup.length;
