@@ -145,6 +145,17 @@
         </div>
     </div>
 
+    <div id="claim-override-popup" class="qty-popup-overlay" onclick="window.closeClaimOverridePopup()">
+        <div class="qty-popup-card" onclick="event.stopPropagation()" style="text-align:left;">
+            <div style="font-size:28px; margin-bottom:8px;">🤔</div>
+            <div id="claim-override-message" style="font-size:15px; color:var(--text-dark); font-weight:600; margin-bottom:20px; line-height:1.45;"></div>
+            <div style="display:flex; gap:10px;">
+                <button class="btn-key key-wide" style="flex:1; margin:0;" onclick="window.closeClaimOverridePopup()">Cancelar</button>
+                <button class="btn-action" style="flex:1;" onclick="window.confirmClaimOverride()">Lo compraré yo</button>
+            </div>
+        </div>
+    </div>
+
     <div id="login-screen" class="app-overlay" style="background-color: rgba(0,0,0,0.5);">
         <div class="flow-card">
             <div class="flow-title">👤 ¿Quién accede?</div>
@@ -537,6 +548,17 @@
             history.back();
         }
 
+        window.closeClaimOverridePopup = function() {
+            history.back();
+        }
+
+        window.confirmClaimOverride = async function() {
+            const productId = pendingClaimOverrideProductId;
+            window.closeClaimOverridePopup();
+            if(!productId || !activeUserId) return;
+            await sbUpdate('productos', productId, { usuario_id: activeUserId });
+        }
+
         function assignNextColor() {
             const usedColors = Object.values(db.usuarios).map(u => (u.color||'').toLowerCase());
             const availableColors = HIGH_CONTRAST_COLORS.filter(c => !usedColors.includes(c.toLowerCase()));
@@ -606,6 +628,16 @@
 
         window.toggleHideClaimedItems = function() {
             hideClaimedItems = !hideClaimedItems;
+            if(hideClaimedItems){
+                Object.values(db.grupos).forEach(g => {
+                    if(g.evento_id !== activeEventId) return;
+                    const allProds = Object.values(db.productos).filter(p => p.grupo_id === g.id);
+                    const visibleProds = allProds.filter(p => !p.usuario_id);
+                    if(allProds.length > 0 && visibleProds.length === 0){
+                        collapsedGroups.add(String(g.id));
+                    }
+                });
+            }
             renderEngine();
         }
 
@@ -1149,6 +1181,8 @@
             el.value = '';
         }
 
+        let pendingClaimOverrideProductId = null;
+
         window.toggleClaim = async function(productId) {
             if(!activeUserId){
                 pendingCartAfterLogin = false;
@@ -1160,6 +1194,13 @@
             if(!prod) return;
             if(String(prod.usuario_id) === String(activeUserId)) {
                 await sbUpdate('productos', productId, { usuario_id: null, cantidad_comprada: 0 });
+            } else if(prod.usuario_id) {
+                pendingClaimOverrideProductId = productId;
+                const owner = db.usuarios[prod.usuario_id];
+                const msgEl = document.getElementById('claim-override-message');
+                if(msgEl) msgEl.innerText = `"${prod.nombre}" ya lo tiene cogido ${owner ? owner.nombre : 'otro amigo'}.`;
+                document.getElementById('claim-override-popup').classList.add('active');
+                pushPopupStub('claim-override-popup');
             } else {
                 await sbUpdate('productos', productId, { usuario_id: activeUserId });
             }
@@ -1398,9 +1439,7 @@
                     const safeGroupName = (g.nombre||'').replace(/'/g, "\\'");
                     const allProds = Object.values(db.productos).filter(p => p.grupo_id === g.id);
                     const prods = hideClaimedItems ? allProds.filter(p => !p.usuario_id) : allProds;
-                    const manuallyCollapsed = collapsedGroups.has(String(g.id));
-                    const autoCollapsedByFilter = hideClaimedItems && allProds.length > 0 && prods.length === 0;
-                    const isCollapsed = manuallyCollapsed || autoCollapsedByFilter;
+                    const isCollapsed = collapsedGroups.has(String(g.id));
                     let html = `
                         <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:${isCollapsed ? '0' : '14px'};">
                             <span onclick="window.toggleGroupCollapse('${g.id}')" style="cursor:pointer; color:var(--primary); font-size:20px; font-weight:900; line-height:1; padding:4px 8px 4px 0; flex-shrink:0; user-select:none;">${isCollapsed ? '▸' : '▾'}</span>
@@ -1593,6 +1632,10 @@
         const POPUP_INTERNAL_CLOSERS = {
             'info-modal-popup': () => {
                 document.getElementById('info-modal-popup').classList.remove('active');
+            },
+            'claim-override-popup': () => {
+                document.getElementById('claim-override-popup').classList.remove('active');
+                pendingClaimOverrideProductId = null;
             },
             'login-screen': () => {
                 document.getElementById('login-screen').classList.remove('active');
