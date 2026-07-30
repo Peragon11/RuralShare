@@ -637,6 +637,10 @@
                         collapsedGroups.add(String(g.id));
                     }
                 });
+            } else {
+                Object.values(db.grupos).forEach(g => {
+                    if(g.evento_id === activeEventId) collapsedGroups.delete(String(g.id));
+                });
             }
             renderEngine();
         }
