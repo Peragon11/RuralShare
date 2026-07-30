@@ -215,8 +215,7 @@
 
     <div id="cart-qty-popup" class="qty-popup-overlay" onclick="window.closeCartQtyPopup()">
         <div class="qty-popup-card" onclick="event.stopPropagation()">
-            <div style="font-weight: 800; font-size: 17px; color: var(--primary); margin-bottom: 4px; text-align:left;" id="cart-qty-title">Compra parcial</div>
-            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px; text-align:left;">Indica cuántas unidades has metido ya en tu carrito:</div>
+            <div style="font-weight: 800; font-size: 17px; color: var(--primary); margin-bottom: 20px; text-align:left;" id="cart-qty-title">Compra parcial</div>
             
             <div style="display: flex; align-items: center; justify-content: center; gap: 24px; margin-bottom: 20px;">
                 <button class="btn-action" style="background-color: #e2e8f0; color: var(--text-dark); font-size: 24px; padding: 6px 22px; border: 1px solid #cbd5e1;" onclick="window.adjustCartQty(-1)">-</button>
@@ -1060,7 +1059,7 @@
             cartQtyCurrentValue = prod.cantidad_comprada || 0;
             cartQtyMaxValue = prod.cantidad_deseada || 1;
 
-            document.getElementById('cart-qty-title').innerText = `🧺 Compra parcial: ${prod.nombre}`;
+            document.getElementById('cart-qty-title').innerText = `Compra parcial: ${prod.nombre}`;
             updateCartQtyPopupUI();
             document.getElementById('cart-qty-popup').classList.add('active');
             pushPopupStub('cart-qty-popup');
@@ -1075,8 +1074,6 @@
                 balanceHtml += `<span style="color:#16a34a; font-weight:800; display:block; margin-top:6px;">✓ ¡Vas a llevar todo en esta tienda!</span>`;
             } else if (cartQtyCurrentValue > 0) {
                 balanceHtml += `<span style="color:var(--accent); font-weight:800; display:block; margin-top:6px;">Llevas ${cartQtyCurrentValue} aquí. Faltarán ${missing} para otra tienda.</span>`;
-            } else {
-                balanceHtml += `<span style="color:var(--text-muted); display:block; margin-top:6px;">No has cogido ninguno todavía en esta tienda.</span>`;
             }
             document.getElementById('cart-qty-info-balance').innerHTML = balanceHtml;
         }
