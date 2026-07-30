@@ -78,7 +78,7 @@
         .app-header { background: linear-gradient(135deg, #112a1d 0%, #1b4332 100%); color: white; padding: max(16px, env(safe-area-inset-top)) 20px 16px; border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg); box-shadow: var(--shadow-md); position: sticky; top: 0; z-index: 100; }
         .header-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
         .logo { font-size: 25px; font-weight: 800; letter-spacing: -0.5px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; gap: 6px; }
-        .header-actions { display: flex; align-items: center; gap: 8px; min-height: 40px; min-width: 0; flex-shrink: 1; }
+        .header-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; min-height: 40px; min-width: 0; flex: 1; }
 
         @media (max-width: 380px) {
             .app-header { padding-left: 14px; padding-right: 14px; }
@@ -234,7 +234,7 @@
 
     <header class="app-header">
         <div class="header-top">
-            <div class="logo" onclick="window.goToEventsHome()"><img src="icono.png" alt="RuralShare" style="height:40px; width:40px; border-radius:10px; object-fit:cover; vertical-align:middle; margin-right:6px;"> RuralShare</div>
+            <div class="logo" id="app-logo" onclick="window.goToEventsHome()"><img src="icono.png" alt="RuralShare" style="height:40px; width:40px; border-radius:10px; object-fit:cover; vertical-align:middle; margin-right:6px;"> <span id="app-logo-text">RuralShare</span></div>
             <div class="header-actions" id="header-actions-container"></div>
         </div>
     </header>
@@ -1253,32 +1253,40 @@
             actionsTarget.innerHTML = '';
 
             // 1. NAVEGACIÓN
+            const logoEl = document.getElementById('app-logo');
+            const logoTextEl = document.getElementById('app-logo-text');
             if (currentTab === 'events') {
+                if(logoEl) logoEl.style.display = 'flex';
+                if(logoTextEl) logoTextEl.style.display = 'inline';
                 document.getElementById('view-events').classList.add('active');
                 document.getElementById('view-general').classList.remove('active');
                 document.getElementById('view-cart').classList.remove('active');
                 actionsTarget.innerHTML = `<button class="btn-round-nav" onclick="window.openGlobalUsersModal()" title="Gestionar Amigos" style="background-color:#ffffff; border-color:#ffffff;">👤</button>`;
             } else if (currentTab === 'general') {
+                if(logoEl) logoEl.style.display = 'flex';
+                if(logoTextEl) logoTextEl.style.display = 'none';
                 document.getElementById('view-events').classList.remove('active');
                 document.getElementById('view-general').classList.add('active');
                 document.getElementById('view-cart').classList.remove('active');
 
                 const nameLabel = activeUserObj
-                    ? `<span onclick="window.changeIdentityInsideTrip()" style="cursor:pointer; font-size:13.5px; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:150px; display:inline-block;">${activeUserObj.nombre}</span>`
-                    : `<span onclick="window.changeIdentityInsideTrip()" style="cursor:pointer; font-size:12.5px; font-weight:700; color:rgba(255,255,255,0.65); text-decoration:underline; white-space:nowrap; flex-shrink:0;">Identifícate</span>`;
+                    ? `<span onclick="window.changeIdentityInsideTrip()" style="cursor:pointer; font-size:18px; font-weight:800; color:#fff; line-height:1.2; white-space:normal; word-break:break-word; flex:1; min-width:0; display:flex; align-items:center; gap:6px;"><span>${activeUserObj.nombre}</span><span style="font-size:14px; opacity:0.8; flex-shrink:0;">🔄</span></span>`
+                    : `<span onclick="window.changeIdentityInsideTrip()" style="cursor:pointer; font-size:17px; font-weight:800; color:rgba(255,255,255,0.9); text-decoration:underline; flex:1; min-width:0; display:flex; align-items:center; gap:6px;">Identifícate<span style="font-size:14px; opacity:0.8;">🔄</span></span>`;
                 const cartBg = activeUserObj ? activeUserObj.color : 'rgba(255,255,255,0.15)';
                 const cartBorder = activeUserObj ? '#fff' : 'rgba(255,255,255,0.3)';
                 actionsTarget.innerHTML = `
                     ${nameLabel}
-                    <button class="btn-round-nav" onclick="window.goToCartView()" title="Mi Carrito" style="background-color:${cartBg}; border-color:${cartBorder}; font-size:24px;">🛒</button>
+                    <button class="btn-round-nav" onclick="window.goToCartView()" title="Mi Carrito" style="background-color:${cartBg}; border-color:${cartBorder}; font-size:24px; flex-shrink:0;">🛒</button>
                 `;
             } else if (currentTab === 'cart') {
+                if(logoEl) logoEl.style.display = 'flex';
+                if(logoTextEl) logoTextEl.style.display = 'none';
                 document.getElementById('view-events').classList.remove('active');
                 document.getElementById('view-general').classList.remove('active');
                 document.getElementById('view-cart').classList.add('active');
                 const nameLabel = activeUserObj
-                    ? `<span onclick="window.changeIdentityInsideTrip()" style="cursor:pointer; font-size:13.5px; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:150px; display:inline-block;">${activeUserObj.nombre}</span>`
-                    : '';
+                    ? `<span onclick="window.changeIdentityInsideTrip()" style="cursor:pointer; font-size:18px; font-weight:800; color:#fff; line-height:1.2; white-space:normal; word-break:break-word; flex:1; min-width:0; display:flex; align-items:center; gap:6px;"><span>${activeUserObj.nombre}</span><span style="font-size:14px; opacity:0.8; flex-shrink:0;">🔄</span></span>`
+                    : `<span onclick="window.changeIdentityInsideTrip()" style="cursor:pointer; font-size:17px; font-weight:800; color:rgba(255,255,255,0.9); text-decoration:underline; flex:1; min-width:0; display:flex; align-items:center; gap:6px;">Identifícate<span style="font-size:14px; opacity:0.8;">🔄</span></span>`;
                 actionsTarget.innerHTML = `${nameLabel}`;
             }
 
@@ -1388,7 +1396,11 @@
                     const card = document.createElement('div');
                     card.className = 'subgroup-card';
                     const safeGroupName = (g.nombre||'').replace(/'/g, "\\'");
-                    const isCollapsed = collapsedGroups.has(String(g.id));
+                    const allProds = Object.values(db.productos).filter(p => p.grupo_id === g.id);
+                    const prods = hideClaimedItems ? allProds.filter(p => !p.usuario_id) : allProds;
+                    const manuallyCollapsed = collapsedGroups.has(String(g.id));
+                    const autoCollapsedByFilter = hideClaimedItems && allProds.length > 0 && prods.length === 0;
+                    const isCollapsed = manuallyCollapsed || autoCollapsedByFilter;
                     let html = `
                         <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:${isCollapsed ? '0' : '14px'};">
                             <span onclick="window.toggleGroupCollapse('${g.id}')" style="cursor:pointer; color:var(--primary); font-size:20px; font-weight:900; line-height:1; padding:4px 8px 4px 0; flex-shrink:0; user-select:none;">${isCollapsed ? '▸' : '▾'}</span>
@@ -1404,8 +1416,6 @@
                         </div>
                         <div>
                         `;
-                        const allProds = Object.values(db.productos).filter(p => p.grupo_id === g.id);
-                        const prods = hideClaimedItems ? allProds.filter(p => !p.usuario_id) : allProds;
                         if(allProds.length > 0 && prods.length === 0){
                             html += `<div class="group-empty" style="font-size:12.5px; color:var(--text-muted); font-style:italic; padding:6px 2px;">Todo lo de este grupo está cogido o comprado.</div>`;
                         }
