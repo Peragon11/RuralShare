@@ -132,13 +132,13 @@
         .btn-quantity-picker { background: #e2e8f0; color: var(--text-dark); border: none; padding: 6px 14px; border-radius: 20px; font-size: 15px; font-weight: 700; cursor: pointer; margin-right: 10px; display: inline-flex; align-items: center; border: 1px solid #cbd5e1; }
         .btn-pill-claim { padding: 6px 12px; border-radius: 30px; font-size: 13px; font-weight: 700; border: none; cursor: pointer; background-color: white; border: 1px solid #cbd5e1; }
         
-        .cart-checkbox-card { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; background: rgba(250,249,246,0.85); border: 1.5px solid #e5e0d5; border-radius: var(--border-radius-lg); margin-bottom: 12px; box-shadow: var(--shadow-sm); cursor: pointer; border-left: 14px solid #cbd5e1; }
+        .cart-checkbox-card { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; background: #faf9f6; border: 1.5px solid #e5e0d5; border-radius: var(--border-radius-lg); margin-bottom: 12px; box-shadow: var(--shadow-sm); cursor: pointer; border-left: 14px solid #cbd5e1; }
         .cart-checkbox-card.checked { background-color: #f1f5f9; opacity: 0.6; }
         .custom-checkbox { width: 24px; height: 24px; border-radius: 50%; border: 2.5px solid #dcdad4; display: flex; align-items: center; justify-content: center; background: white; }
         .cart-checkbox-card.checked .custom-checkbox { background-color: #16a34a; border-color: #16a34a; }
         .cart-checkbox-card.checked .custom-checkbox::after { content: "✓"; color: white; font-size: 15px; font-weight: 900; }
         
-        .empty-illustration { text-align: center; padding: 30px 20px; color: var(--text-muted); font-size: 15px; }
+        .empty-illustration { text-align: center; padding: 30px 20px; color: var(--text-muted); font-size: 15px; background: #faf9f6; border-radius: var(--border-radius-lg); border: 1px solid rgba(0,0,0,0.05); }
         .empty-illustration span { display: block; font-size: 41px; margin-bottom: 8px; }
     </style>
 </head>
@@ -282,16 +282,18 @@
                 </div>
                 <div id="add-group-panel" style="display:none; margin-top:10px;">
                     <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:8px; margin-bottom:14px;">
-                        <button class="btn-selection-row" style="justify-content:center; text-align:center; font-size:14.5px; padding:12px 8px;" onclick="window.quickAddGroup('Bebidas')">Bebidas</button>
-                        <button class="btn-selection-row" style="justify-content:center; text-align:center; font-size:14.5px; padding:12px 8px;" onclick="window.quickAddGroup('Barbacoa')">Barbacoa</button>
-                        <button class="btn-selection-row" style="justify-content:center; text-align:center; font-size:14.5px; padding:12px 8px;" onclick="window.quickAddGroup('Desayunos')">Desayunos</button>
-                        <button class="btn-selection-row" style="justify-content:center; text-align:center; font-size:14.5px; padding:12px 8px;" onclick="window.quickAddGroup('Merienda')">Merienda</button>
-                        <button class="btn-selection-row" style="justify-content:center; text-align:center; font-size:14.5px; padding:12px 8px;" onclick="window.openDayPicker('Comida')">Comida</button>
-                        <button class="btn-selection-row" style="justify-content:center; text-align:center; font-size:14.5px; padding:12px 8px;" onclick="window.openDayPicker('Cena')">Cena</button>
+                        <button class="btn-selection-row" style="justify-content:center; text-align:center; font-size:14.5px; padding:12px 8px;" onclick="window.quickAddGroup('Bebidas')">🥤 Bebidas</button>
+                        <button class="btn-selection-row" style="justify-content:center; text-align:center; font-size:14.5px; padding:12px 8px;" onclick="window.quickAddGroup('Barbacoa')">🍖 Barbacoa</button>
+                        <button class="btn-selection-row" style="justify-content:center; text-align:center; font-size:14.5px; padding:12px 8px;" onclick="window.quickAddGroup('Desayunos')">🥐 Desayunos</button>
+                        <button class="btn-selection-row" style="justify-content:center; text-align:center; font-size:14.5px; padding:12px 8px;" onclick="window.quickAddGroup('Merienda')">🍪 Merienda</button>
+                        <button class="btn-selection-row" style="justify-content:center; text-align:center; font-size:14.5px; padding:12px 8px;" onclick="window.quickAddGroup('Picoteo')">🍿 Picoteo</button>
+                        <button class="btn-selection-row" style="justify-content:center; text-align:center; font-size:14.5px; padding:12px 8px;" onclick="window.quickAddGroup('Varios')">🗂️ Varios</button>
+                        <button class="btn-selection-row" style="justify-content:center; text-align:center; font-size:14.5px; padding:12px 8px;" onclick="window.openDayPicker('Comida')">🍽️ Comida</button>
+                        <button class="btn-selection-row" style="justify-content:center; text-align:center; font-size:14.5px; padding:12px 8px;" onclick="window.openDayPicker('Cena')">🌙 Cena</button>
                     </div>
                     <div class="input-row">
                         <input type="search" enterkeyhint="enter" name="campo_texto_4" autocomplete="one-time-code" data-lpignore="true" data-1p-ignore="true" data-form-type="other" autocorrect="off" autocapitalize="sentences" spellcheck="false" id="subgroup-input" placeholder="Nombre personalizado" onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.addSubgroup(); }">
-                        <button class="btn-action" onclick="window.addSubgroup()">Añadir</button>
+                        <button class="btn-action" onclick="window.addSubgroup()">+</button>
                     </div>
                 </div>
             </div>
@@ -1388,6 +1390,7 @@
                             const div = document.createElement('div');
                             div.className = 'interactive-item';
                             div.style.marginBottom = '10px';
+                            div.style.borderLeft = 'none';
                             div.innerHTML = `
                                 <div class="item-label-group" style="flex:1; min-width:0;">
                                     <input type="search" enterkeyhint="enter" name="campo_texto_5" autocomplete="one-time-code" data-lpignore="true" data-1p-ignore="true" data-form-type="other" autocorrect="off" autocapitalize="sentences" spellcheck="false" id="edit-event-name-input-${ev.id}" value="${safeAttr}" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.confirmEditEventName('${ev.id}', event); }" style="font-size:18px; font-weight:800; border:2px solid var(--primary); border-radius:8px; padding:7px 10px; width:100%; background:#fff; color:var(--text-dark);">
@@ -1411,7 +1414,7 @@
 
                             const row = document.createElement('div');
                             row.className = 'interactive-item';
-                            row.style.cssText = 'position:relative; margin-bottom:0; justify-content:center; touch-action:pan-y; user-select:none; cursor:pointer;';
+                            row.style.cssText = 'position:relative; margin-bottom:0; justify-content:center; touch-action:pan-y; user-select:none; cursor:pointer; border-left:none;';
                             row.innerHTML = `<span class="item-main-text" style="font-size:19px; font-weight:800; text-align:center;">${ev.nombre}</span>`;
                             wrapper.appendChild(row);
 
@@ -1465,7 +1468,7 @@
                             html += `<div class="group-empty" style="font-size:13.5px; color:var(--text-muted); font-style:italic; padding:6px 2px;">Todo lo de este grupo está cogido o comprado.</div>`;
                         }
                         prods.forEach(p => {
-                        let rowStyle = `border-left: 8px solid #cbd5e1;`;
+                        let rowStyle = `border-left: 8px solid #cbd5e1; background:#faf9f6;`;
                         let bTxt = 'Lo compro'; let cssClass = ''; let claimBtnStyle = ''; let delBtnStyle = 'border-color:#dc2626; color:#dc2626; background:#fff;';
                         let nameStyle = '';
                         let qtyBtnStyle = '';
