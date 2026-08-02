@@ -277,7 +277,7 @@
             </div>
             <div class="card" style="padding:10px 14px; margin-bottom:16px;">
                 <div class="card-title" style="cursor:pointer; display:flex; align-items:center; justify-content:space-between; margin-bottom:0;" onclick="window.toggleAddGroupPanel()">
-                    <span>Añadir Categoría / Grupo</span>
+                    <span>+ Añadir Categoría / Grupo</span>
                     <span id="add-group-chevron" style="font-size:23px; line-height:1; font-weight:900; color:var(--primary);">▾</span>
                 </div>
                 <div id="add-group-panel" style="display:none; margin-top:10px;">
@@ -1468,7 +1468,7 @@
                             html += `<div class="group-empty" style="font-size:13.5px; color:var(--text-muted); font-style:italic; padding:6px 2px;">Todo lo de este grupo está cogido o comprado.</div>`;
                         }
                         prods.forEach(p => {
-                        let rowStyle = `border-left: 8px solid #cbd5e1; background:#faf9f6;`;
+                        let rowStyle = `background:#faf9f6; border-left: 8px solid transparent;`;
                         let bTxt = 'Lo compro'; let cssClass = ''; let claimBtnStyle = ''; let delBtnStyle = 'border-color:#dc2626; color:#dc2626; background:#fff;';
                         let nameStyle = '';
                         let qtyBtnStyle = '';
