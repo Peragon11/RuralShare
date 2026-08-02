@@ -47,13 +47,13 @@
         }
         .app-overlay.active { display: flex; }
         .flow-card { background: white; width: 100%; max-width: 450px; max-height: 90vh; overflow-y: auto; padding: 30px 24px; border-radius: var(--border-radius-lg); box-shadow: var(--shadow-md); border: 1px solid rgba(0,0,0,0.05); text-align: center; position: relative; margin: auto 0; }
-        .flow-title { font-size: 20px; font-weight: 800; color: var(--primary); margin-bottom: 6px; text-align: left; }
-        .flow-subtitle { font-size: 13.5px; color: var(--text-muted); margin-bottom: 20px; text-align: left; }
+        .flow-title { font-size: 21px; font-weight: 800; color: var(--primary); margin-bottom: 6px; text-align: left; }
+        .flow-subtitle { font-size: 14.5px; color: var(--text-muted); margin-bottom: 20px; text-align: left; }
         
         .scrollable-grid-list { display: flex; flex-direction: column; gap: 10px; max-height: 46vh; overflow-y: auto; margin-bottom: 16px; padding-right: 4px; }
         
         /* Botones de Selección */
-        .btn-selection-row { width: 100%; padding: 14px 18px; background: #faf9f6; border: 2px solid #eae6df; border-radius: var(--border-radius-sm); font-size: 15px; font-weight: 700; color: var(--text-dark); text-align: left; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
+        .btn-selection-row { width: 100%; padding: 14px 18px; background: #faf9f6; border: 2px solid #eae6df; border-radius: var(--border-radius-sm); font-size: 16px; font-weight: 700; color: var(--text-dark); text-align: left; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
         .btn-selection-row.selected { background: var(--primary-light); border-color: var(--primary); }
         .btn-selection-row.btn-add-extra { background: #f0fdf4; border: 2px dashed #16a34a; color: #166534; justify-content: center; gap: 8px; }
         
@@ -66,38 +66,38 @@
         @media (orientation: landscape) and (max-height: 500px) {
             .app-overlay { padding: 12px; }
             .flow-card { padding: 18px 16px; max-height: 94vh; }
-            .flow-title { font-size: 17px; margin-bottom: 3px; }
-            .flow-subtitle { font-size: 12px; margin-bottom: 12px; }
+            .flow-title { font-size: 18px; margin-bottom: 3px; }
+            .flow-subtitle { font-size: 13px; margin-bottom: 12px; }
             .scrollable-grid-list { max-height: 58vh; gap: 7px; }
-            .btn-selection-row { padding: 10px 14px; font-size: 13.5px; }
+            .btn-selection-row { padding: 10px 14px; font-size: 14.5px; }
             .qty-popup-card { padding: 14px; max-height: 94vh; }
         }
         
         .qty-keyboard-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 15px; }
-        .btn-key { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 14px 0; border-radius: var(--border-radius-sm); font-size: 16px; font-weight: 800; color: var(--text-dark); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .btn-key { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 14px 0; border-radius: var(--border-radius-sm); font-size: 17px; font-weight: 800; color: var(--text-dark); cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .btn-key:active { background: var(--primary-light); border-color: var(--primary); }
-        .btn-key.key-wide { grid-column: span 2; background: #e2e8f0; font-size: 14px; }
+        .btn-key.key-wide { grid-column: span 2; background: #e2e8f0; font-size: 15px; }
         .btn-key.key-close { background: #fee2e2; border-color: #fca5a5; color: #991b1b; }
 
-        .popup-section-title { text-align: left; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin: 10px 0 5px 2px; }
+        .popup-section-title { text-align: left; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin: 10px 0 5px 2px; }
 
         /* CABECERA SUPERIOR */
         .app-header { background: linear-gradient(135deg, #112a1d 0%, #1b4332 100%); color: white; padding: max(16px, env(safe-area-inset-top)) 20px 16px; border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg); box-shadow: var(--shadow-md); position: sticky; top: 0; z-index: 100; }
         .header-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-        .logo { font-size: 25px; font-weight: 800; letter-spacing: -0.5px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; gap: 6px; }
+        .logo { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; gap: 6px; }
         .header-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; min-height: 40px; min-width: 0; flex: 1; }
 
         @media (max-width: 380px) {
             .app-header { padding-left: 14px; padding-right: 14px; }
-            .logo { font-size: 20px; }
-            .btn-back-escape { padding: 6px 9px; font-size: 11px; }
+            .logo { font-size: 21px; }
+            .btn-back-escape { padding: 6px 9px; font-size: 12px; }
             .header-actions { gap: 6px; }
         }
         
-        .btn-round-nav { width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.25); color: white; display: flex; align-items: center; justify-content: center; font-size: 19px; cursor: pointer; transition: all 0.2s; font-weight: bold; flex-shrink: 0; }
+        .btn-round-nav { width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.25); color: white; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; transition: all 0.2s; font-weight: bold; flex-shrink: 0; }
         .btn-round-nav:active { background: rgba(255, 255, 255, 0.3); }
         
-        .btn-back-escape { background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.25); color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; }
+        .btn-back-escape { background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.25); color: white; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 700; cursor: pointer; }
 
         /* CONTENEDORES */
         .app-container { max-width: 650px; width: 100%; margin: 0 auto; padding: 20px 16px; }
@@ -106,15 +106,15 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
         
         .card { background: var(--bg-card); border-radius: var(--border-radius-lg); padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow-sm); border: 1px solid rgba(0, 0, 0, 0.04); }
-        .card-title { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #1b4332; margin-bottom: 14px; }
+        .card-title { font-size: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #1b4332; margin-bottom: 14px; }
         
         .input-row { display: flex; gap: 8px; min-width: 0; }
-        input[type="text"], input[type="search"] { flex: 1; min-width: 0; padding: 12px 16px; border: 2px solid #eae6df; border-radius: var(--border-radius-sm); font-size: 16px; background-color: #faf9f6; color: var(--text-dark); -webkit-appearance: none; appearance: none; }
+        input[type="text"], input[type="search"] { flex: 1; min-width: 0; padding: 12px 16px; border: 2px solid #eae6df; border-radius: var(--border-radius-sm); font-size: 17px; background-color: #faf9f6; color: var(--text-dark); -webkit-appearance: none; appearance: none; }
         input[type="text"]:focus, input[type="search"]:focus { outline: none; border-color: #1b4332; background-color: white; }
-        .btn-action { padding: 12px 18px; background-color: #1b4332; color: white; border: none; border-radius: var(--border-radius-sm); font-weight: 700; font-size: 15px; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
+        .btn-action { padding: 12px 18px; background-color: #1b4332; color: white; border: none; border-radius: var(--border-radius-sm); font-weight: 700; font-size: 16px; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
         
         .subgroup-card { background: var(--bg-card); border-radius: var(--border-radius-lg); padding: 16px; margin-bottom: 10px; box-shadow: var(--shadow-sm); border: 1px solid rgba(0, 0, 0, 0.05); }
-        .subgroup-banner-title { font-size: 16px; font-weight: 800; color: var(--accent); margin-bottom: 14px; }
+        .subgroup-banner-title { font-size: 17px; font-weight: 800; color: var(--accent); margin-bottom: 14px; }
         .inline-add-product-form { display: flex; gap: 8px; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px dashed #e2e8f0; }
         
         .interactive-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: #faf9f6; border-radius: var(--border-radius-sm); margin-bottom: 10px; border-left: 14px solid #cbd5e1; }
@@ -123,39 +123,37 @@
         .product-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: #faf9f6; border-radius: 10px; margin-bottom: 6px; border-left: 4px solid #cbd5e1; gap: 8px; }
         .product-row.already-bought { background-color: #e2e8f0 !important; opacity: 0.7; }
         
-        .user-color-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; color: white; margin-top: 6px; }
+        .user-color-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; color: white; margin-top: 6px; }
         
         .item-label-group { display: flex; flex-direction: column; gap: 2px; flex: 1; padding-right: 10px; }
-        .item-main-text { font-size: 15px; font-weight: 600; }
-        .item-sub-text { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+        .item-main-text { font-size: 16px; font-weight: 600; }
+        .item-sub-text { font-size: 13px; color: var(--text-muted); font-weight: 600; }
         
-        .btn-quantity-picker { background: #e2e8f0; color: var(--text-dark); border: none; padding: 6px 14px; border-radius: 20px; font-size: 14px; font-weight: 700; cursor: pointer; margin-right: 10px; display: inline-flex; align-items: center; border: 1px solid #cbd5e1; }
-        .btn-pill-claim { padding: 6px 12px; border-radius: 30px; font-size: 12px; font-weight: 700; border: none; cursor: pointer; background-color: white; border: 1px solid #cbd5e1; }
+        .btn-quantity-picker { background: #e2e8f0; color: var(--text-dark); border: none; padding: 6px 14px; border-radius: 20px; font-size: 15px; font-weight: 700; cursor: pointer; margin-right: 10px; display: inline-flex; align-items: center; border: 1px solid #cbd5e1; }
+        .btn-pill-claim { padding: 6px 12px; border-radius: 30px; font-size: 13px; font-weight: 700; border: none; cursor: pointer; background-color: white; border: 1px solid #cbd5e1; }
         
         .cart-checkbox-card { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; background: #faf9f6; border: 1.5px solid #e5e0d5; border-radius: var(--border-radius-lg); margin-bottom: 12px; box-shadow: var(--shadow-sm); cursor: pointer; border-left: 14px solid #cbd5e1; }
         .cart-checkbox-card.checked { background-color: #f1f5f9; opacity: 0.6; }
         .custom-checkbox { width: 24px; height: 24px; border-radius: 50%; border: 2.5px solid #dcdad4; display: flex; align-items: center; justify-content: center; background: white; }
         .cart-checkbox-card.checked .custom-checkbox { background-color: #16a34a; border-color: #16a34a; }
-        .cart-checkbox-card.checked .custom-checkbox::after { content: "✓"; color: white; font-size: 14px; font-weight: 900; }
+        .cart-checkbox-card.checked .custom-checkbox::after { content: "✓"; color: white; font-size: 15px; font-weight: 900; }
         
-        .empty-illustration { text-align: center; padding: 30px 20px; color: var(--text-muted); font-size: 14px; }
-        .empty-illustration span { display: block; font-size: 40px; margin-bottom: 8px; }
+        .empty-illustration { text-align: center; padding: 30px 20px; color: var(--text-muted); font-size: 15px; }
+        .empty-illustration span { display: block; font-size: 41px; margin-bottom: 8px; }
     </style>
 </head>
 <body>
 
     <div id="info-modal-popup" class="qty-popup-overlay" onclick="window.closeInfoModal()">
         <div class="qty-popup-card" onclick="event.stopPropagation()" style="text-align:left;">
-            <div style="font-size:28px; margin-bottom:8px;">⚠️</div>
-            <div id="info-modal-message" style="font-size:15px; color:var(--text-dark); font-weight:600; margin-bottom:20px; line-height:1.45;"></div>
+            <div id="info-modal-message" style="font-size:16px; color:var(--text-dark); font-weight:600; margin-bottom:20px; line-height:1.45;"></div>
             <button class="btn-action" style="width:100%;" onclick="window.closeInfoModal()">Aceptar</button>
         </div>
     </div>
 
     <div id="claim-override-popup" class="qty-popup-overlay" onclick="window.closeClaimOverridePopup()">
         <div class="qty-popup-card" onclick="event.stopPropagation()" style="text-align:left;">
-            <div style="font-size:28px; margin-bottom:8px;">🤔</div>
-            <div id="claim-override-message" style="font-size:15px; color:var(--text-dark); font-weight:600; margin-bottom:20px; line-height:1.45;"></div>
+            <div id="claim-override-message" style="font-size:16px; color:var(--text-dark); font-weight:600; margin-bottom:20px; line-height:1.45;"></div>
             <div style="display:flex; gap:10px;">
                 <button class="btn-key key-wide" style="flex:1; margin:0;" onclick="window.closeClaimOverridePopup()">Cancelar</button>
                 <button class="btn-action" style="flex:1;" onclick="window.confirmClaimOverride()">Lo compraré yo</button>
@@ -165,17 +163,17 @@
 
     <div id="login-screen" class="app-overlay" style="background-color: rgba(0,0,0,0.5);">
         <div class="flow-card">
-            <div class="flow-title">👤 ¿Quién accede?</div>
+            <div class="flow-title">¿Quién accede?</div>
             <div class="flow-subtitle">Identifícate para gestionar tu lista y carrito:</div>
             <div class="scrollable-grid-list" id="login-users-target"></div>
-            <button class="btn-key key-wide key-close" style="width:100%; border-radius:var(--border-radius-sm);" onclick="window.cancelEventLogin()">❌ Cancelar</button>
+            <button class="btn-key key-wide key-close" style="width:100%; border-radius:var(--border-radius-sm);" onclick="window.cancelEventLogin()">Cancelar</button>
         </div>
     </div>
 
     <div id="global-users-modal" class="app-overlay">
         <div class="flow-card">
-            <div style="position: absolute; top:15px; right:15px; font-size:20px; cursor:pointer;" onclick="window.closeGlobalUsersModal()">✕</div>
-            <div class="flow-title">👥 Lista de Usuarios</div>
+            <div style="position: absolute; top:15px; right:15px; font-size:21px; cursor:pointer;" onclick="window.closeGlobalUsersModal()">✕</div>
+            <div class="flow-title">Lista de Usuarios</div>
             <div class="flow-subtitle">Añade o edita los perfiles del grupo de viaje:</div>
             <div class="input-row" style="margin-bottom: 14px;">
                 <input type="search" enterkeyhint="enter" name="campo_texto_1" autocomplete="one-time-code" data-lpignore="true" data-1p-ignore="true" data-form-type="other" autocorrect="off" autocapitalize="sentences" spellcheck="false" id="global-user-input" placeholder="Nombre" onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.createGlobalUser(); }">
@@ -193,8 +191,8 @@
 
     <div id="edit-user-popup" class="qty-popup-overlay" onclick="window.closeEditUserPopup()">
         <div class="qty-popup-card" onclick="event.stopPropagation()">
-            <div style="font-weight: 800; font-size: 16px; color: var(--primary); margin-bottom: 2px; text-align:left;">✏️ Editar Amigo</div>
-            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px; text-align:left;">Modifica los datos y escoge un color libre:</div>
+            <div style="font-weight: 800; font-size: 17px; color: var(--primary); margin-bottom: 2px; text-align:left;">Editar Amigo</div>
+            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px; text-align:left;">Modifica los datos y escoge un color libre:</div>
             <div class="input-row" style="margin-bottom: 14px;">
                 <input type="search" enterkeyhint="enter" name="campo_texto_2" autocomplete="one-time-code" data-lpignore="true" data-1p-ignore="true" data-form-type="other" autocorrect="off" autocapitalize="sentences" spellcheck="false" id="edit-user-name-input" placeholder="Nombre">
             </div>
@@ -207,7 +205,7 @@
 
     <div id="qty-keyboard-popup" class="qty-popup-overlay" onclick="window.closeQtyKeyboard()">
         <div class="qty-popup-card" onclick="event.stopPropagation()">
-            <div style="font-weight: 800; font-size: 16px; color: #1b4332; margin-bottom: 2px; text-align:left;" id="qty-popup-title">Unidades</div>
+            <div style="font-weight: 800; font-size: 17px; color: #1b4332; margin-bottom: 2px; text-align:left;" id="qty-popup-title">Unidades</div>
             <div class="qty-keyboard-grid">
                 <script>
                     for(let i = 1; i <= 20; i++) {
@@ -222,15 +220,15 @@
 
     <div id="cart-qty-popup" class="qty-popup-overlay" onclick="window.closeCartQtyPopup()">
         <div class="qty-popup-card" onclick="event.stopPropagation()">
-            <div style="font-weight: 800; font-size: 17px; color: var(--primary); margin-bottom: 20px; text-align:left;" id="cart-qty-title">Compra parcial</div>
+            <div style="font-weight: 800; font-size: 18px; color: var(--primary); margin-bottom: 20px; text-align:left;" id="cart-qty-title">Compra parcial</div>
             
             <div style="display: flex; align-items: center; justify-content: center; gap: 24px; margin-bottom: 20px;">
-                <button class="btn-action" style="background-color: #e2e8f0; color: var(--text-dark); font-size: 24px; padding: 6px 22px; border: 1px solid #cbd5e1;" onclick="window.adjustCartQty(-1)">-</button>
-                <span id="cart-qty-display" style="font-size: 34px; font-weight: 800; min-width: 60px; text-align: center;">0</span>
-                <button class="btn-action" style="font-size: 24px; padding: 6px 22px;" onclick="window.adjustCartQty(1)">+</button>
+                <button class="btn-action" style="background-color: #e2e8f0; color: var(--text-dark); font-size: 25px; padding: 6px 22px; border: 1px solid #cbd5e1;" onclick="window.adjustCartQty(-1)">-</button>
+                <span id="cart-qty-display" style="font-size: 35px; font-weight: 800; min-width: 60px; text-align: center;">0</span>
+                <button class="btn-action" style="font-size: 25px; padding: 6px 22px;" onclick="window.adjustCartQty(1)">+</button>
             </div>
             
-            <div style="font-size: 14px; background: #faf9f6; padding: 12px; border-radius: var(--border-radius-sm); margin-bottom: 24px; border: 1px dashed #eae6df;" id="cart-qty-info-balance">
+            <div style="font-size: 15px; background: #faf9f6; padding: 12px; border-radius: var(--border-radius-sm); margin-bottom: 24px; border: 1px dashed #eae6df;" id="cart-qty-info-balance">
                 Cargando balance...
             </div>
 
@@ -240,13 +238,13 @@
     </div>
 
     <div id="install-banner" style="display:none; position:fixed; bottom:0; left:0; right:0; z-index:4000; background:#112a1d; color:#fff; padding:14px 16px; padding-bottom:max(14px, env(safe-area-inset-bottom)); box-shadow:0 -4px 12px rgba(0,0,0,0.25); align-items:center; gap:12px;">
-        <div style="font-size:24px;">📲</div>
+        
         <div style="flex:1; min-width:0;">
-            <div id="install-banner-title" style="font-weight:800; font-size:14px;">Instala RuralShare</div>
-            <div id="install-banner-text" style="font-size:12px; opacity:0.85;">Añádela a tu pantalla de inicio para abrirla como una app.</div>
+            <div id="install-banner-title" style="font-weight:800; font-size:15px;">Instala RuralShare</div>
+            <div id="install-banner-text" style="font-size:13px; opacity:0.85;">Añádela a tu pantalla de inicio para abrirla como una app.</div>
         </div>
-        <button id="install-banner-action" class="btn-action" style="padding:9px 14px; font-size:13px; flex-shrink:0;" onclick="window.triggerInstallPrompt()">Instalar</button>
-        <button style="background:transparent; color:rgba(255,255,255,0.6); font-size:18px; padding:4px 6px; flex-shrink:0;" onclick="window.dismissInstallBanner()">✕</button>
+        <button id="install-banner-action" class="btn-action" style="padding:9px 14px; font-size:14px; flex-shrink:0;" onclick="window.triggerInstallPrompt()">Instalar</button>
+        <button style="background:transparent; color:rgba(255,255,255,0.6); font-size:19px; padding:4px 6px; flex-shrink:0;" onclick="window.dismissInstallBanner()">✕</button>
     </div>
 
     <header class="app-header">
@@ -260,14 +258,14 @@
         
         <section id="view-events" class="view-section active">
             <div class="card">
-                <div class="card-title">🏕️ Crear Nuevo Viaje</div>
+                <div class="card-title">Crear Nuevo Viaje</div>
                 <div class="input-row">
                     <input type="search" enterkeyhint="enter" name="campo_texto_3" autocomplete="one-time-code" data-lpignore="true" data-1p-ignore="true" data-form-type="other" autocorrect="off" autocapitalize="sentences" spellcheck="false" id="event-input" placeholder="Escribir nombre" onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.triggerEventCreationWizard(); }">
                     <button class="btn-action" onclick="window.triggerEventCreationWizard()">Crear viaje</button>
                 </div>
             </div>
             <div class="card">
-                <div class="card-title">📂 Selecciona un Viaje</div>
+                <div class="card-title">Selecciona un Viaje</div>
                 <div id="events-list-target"></div>
             </div>
         </section>
@@ -275,21 +273,21 @@
         <section id="view-general" class="view-section">
             <div style="margin-bottom: 15px; background: #eae6df; padding: 10px 14px; border-radius: var(--border-radius-sm); display:flex; align-items:center; gap:10px;">
                 <button class="btn-back-escape" style="background:#fff; border:1px solid #cbd5e1; color:var(--text-dark); flex-shrink:0; padding:7px 12px;" onclick="history.back()">◀ Atrás</button>
-                <span id="active-trip-banner-text" style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:center; font-size:17px; font-weight:800; color:var(--primary);">Viaje</span>
+                <span id="active-trip-banner-text" style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:center; font-size:18px; font-weight:800; color:var(--primary);">Viaje</span>
             </div>
             <div class="card" style="padding:10px 14px; margin-bottom:16px;">
                 <div class="card-title" style="cursor:pointer; display:flex; align-items:center; justify-content:space-between; margin-bottom:0;" onclick="window.toggleAddGroupPanel()">
-                    <span>➕ Añadir Categoría / Grupo</span>
-                    <span id="add-group-chevron" style="font-size:22px; line-height:1; font-weight:900; color:var(--primary);">▾</span>
+                    <span>Añadir Categoría / Grupo</span>
+                    <span id="add-group-chevron" style="font-size:23px; line-height:1; font-weight:900; color:var(--primary);">▾</span>
                 </div>
                 <div id="add-group-panel" style="display:none; margin-top:10px;">
                     <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:8px; margin-bottom:14px;">
-                        <button class="btn-selection-row" style="justify-content:center; text-align:center; font-size:13.5px; padding:12px 8px;" onclick="window.quickAddGroup('Bebidas')">🥤 Bebidas</button>
-                        <button class="btn-selection-row" style="justify-content:center; text-align:center; font-size:13.5px; padding:12px 8px;" onclick="window.quickAddGroup('Barbacoa')">🍖 Barbacoa</button>
-                        <button class="btn-selection-row" style="justify-content:center; text-align:center; font-size:13.5px; padding:12px 8px;" onclick="window.quickAddGroup('Desayunos')">🥐 Desayunos</button>
-                        <button class="btn-selection-row" style="justify-content:center; text-align:center; font-size:13.5px; padding:12px 8px;" onclick="window.quickAddGroup('Merienda')">🍪 Merienda</button>
-                        <button class="btn-selection-row" style="justify-content:center; text-align:center; font-size:13.5px; padding:12px 8px;" onclick="window.openDayPicker('Comida')">🍽️ Comida</button>
-                        <button class="btn-selection-row" style="justify-content:center; text-align:center; font-size:13.5px; padding:12px 8px;" onclick="window.openDayPicker('Cena')">🌙 Cena</button>
+                        <button class="btn-selection-row" style="justify-content:center; text-align:center; font-size:14.5px; padding:12px 8px;" onclick="window.quickAddGroup('Bebidas')">Bebidas</button>
+                        <button class="btn-selection-row" style="justify-content:center; text-align:center; font-size:14.5px; padding:12px 8px;" onclick="window.quickAddGroup('Barbacoa')">Barbacoa</button>
+                        <button class="btn-selection-row" style="justify-content:center; text-align:center; font-size:14.5px; padding:12px 8px;" onclick="window.quickAddGroup('Desayunos')">Desayunos</button>
+                        <button class="btn-selection-row" style="justify-content:center; text-align:center; font-size:14.5px; padding:12px 8px;" onclick="window.quickAddGroup('Merienda')">Merienda</button>
+                        <button class="btn-selection-row" style="justify-content:center; text-align:center; font-size:14.5px; padding:12px 8px;" onclick="window.openDayPicker('Comida')">Comida</button>
+                        <button class="btn-selection-row" style="justify-content:center; text-align:center; font-size:14.5px; padding:12px 8px;" onclick="window.openDayPicker('Cena')">Cena</button>
                     </div>
                     <div class="input-row">
                         <input type="search" enterkeyhint="enter" name="campo_texto_4" autocomplete="one-time-code" data-lpignore="true" data-1p-ignore="true" data-form-type="other" autocorrect="off" autocapitalize="sentences" spellcheck="false" id="subgroup-input" placeholder="Nombre personalizado" onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.addSubgroup(); }">
@@ -302,8 +300,8 @@
 
         <div id="day-picker-popup" class="qty-popup-overlay" onclick="window.closeDayPicker()">
             <div class="qty-popup-card" onclick="event.stopPropagation()">
-                <div style="font-weight: 800; font-size: 16px; color: #1b4332; margin-bottom: 2px; text-align:left;" id="day-picker-title">¿Qué día?</div>
-                <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px; text-align:left;">Elige el día de la semana:</div>
+                <div style="font-weight: 800; font-size: 17px; color: #1b4332; margin-bottom: 2px; text-align:left;" id="day-picker-title">¿Qué día?</div>
+                <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px; text-align:left;">Elige el día de la semana:</div>
                 <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:8px;">
                     <button class="btn-key" onclick="window.selectDayForGroup('Lunes')">Lunes</button>
                     <button class="btn-key" onclick="window.selectDayForGroup('Martes')">Martes</button>
@@ -320,7 +318,7 @@
         <section id="view-cart" class="view-section">
             <div style="margin-bottom: 15px; background: #eae6df; padding: 10px 14px; border-radius: var(--border-radius-sm); display:flex; align-items:center; gap:10px;">
                 <button class="btn-back-escape" style="background:#fff; border:1px solid #cbd5e1; color:var(--text-dark); flex-shrink:0; padding:7px 12px;" onclick="history.back()">◀ Atrás</button>
-                <span id="active-trip-banner-text-cart" style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:center; font-size:17px; font-weight:800; color:var(--primary);">Viaje</span>
+                <span id="active-trip-banner-text-cart" style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:center; font-size:18px; font-weight:800; color:var(--primary);">Viaje</span>
             </div>
             <div id="cart-list-target"></div>
         </section>
@@ -703,7 +701,7 @@
             target.innerHTML = '';
             const list = Object.values(db.usuarios);
             if(list.length === 0) {
-                target.innerHTML = `<div style="font-size:13px; color:var(--text-muted); padding:10px 0;">No hay amigos guardados.</div>`;
+                target.innerHTML = `<div style="font-size:14px; color:var(--text-muted); padding:10px 0;">No hay amigos guardados.</div>`;
                 return;
             }
             list.forEach(u => {
@@ -712,7 +710,7 @@
                 div.style.background = u.color;
                 div.style.borderLeft = `14px solid ${u.color}`;
                 div.innerHTML = `
-                    <span class="item-main-text" style="font-size:14.5px; font-weight:800; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.35);">${u.nombre}</span>
+                    <span class="item-main-text" style="font-size:15.5px; font-weight:800; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.35);">${u.nombre}</span>
                     <div style="display:flex; align-items:center; gap:6px;">
                         <button class="btn-pill-claim" style="border-color:#fff; color:#fff; background:rgba(0,0,0,0.2);" onclick="window.openEditUserPopup('${u.id}')">✏️</button>
                         <button class="btn-pill-claim" style="border-color:#fff; color:#fff; background:rgba(0,0,0,0.2);" onclick="window.triggerUserDeleteFlow('${u.id}', '${(u.nombre||'').replace(/'/g, "\\'")}', event)"><svg width="18" height="18" viewBox="0 0 24 24" style="vertical-align:middle; flex-shrink:0;"><circle cx="12" cy="12" r="11" fill="#dc2626"/><path d="M8 8L16 16M16 8L8 16" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/></svg></button>
@@ -827,8 +825,8 @@
 
             if (phase === 'product') {
                 container.innerHTML = `
-                    <div style="font-weight:800; font-size:16px; color:#b91c1c; margin-bottom:6px; text-align:left;"><svg width="18" height="18" viewBox="0 0 24 24" style="vertical-align:middle; flex-shrink:0;"><circle cx="12" cy="12" r="11" fill="#dc2626"/><path d="M8 8L16 16M16 8L8 16" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/></svg> ¿Eliminar producto?</div>
-                    <div style="font-size:13.5px; color:var(--text-dark); margin-bottom:18px; text-align:left; line-height:1.4;">
+                    <div style="font-weight:800; font-size:17px; color:#b91c1c; margin-bottom:6px; text-align:left;"><svg width="18" height="18" viewBox="0 0 24 24" style="vertical-align:middle; flex-shrink:0;"><circle cx="12" cy="12" r="11" fill="#dc2626"/><path d="M8 8L16 16M16 8L8 16" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/></svg> ¿Eliminar producto?</div>
+                    <div style="font-size:14.5px; color:var(--text-dark); margin-bottom:18px; text-align:left; line-height:1.4;">
                         ¿Eliminar <strong>"${deleteTarget.name}"</strong> de la lista? No se puede deshacer.
                     </div>
                     <div style="display:flex; gap:10px;">
@@ -841,8 +839,8 @@
 
             if (phase === 'usuario') {
                 container.innerHTML = `
-                    <div style="font-weight:800; font-size:16px; color:#b91c1c; margin-bottom:6px; text-align:left;"><svg width="18" height="18" viewBox="0 0 24 24" style="vertical-align:middle; flex-shrink:0;"><circle cx="12" cy="12" r="11" fill="#dc2626"/><path d="M8 8L16 16M16 8L8 16" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/></svg> ¿Eliminar amigo?</div>
-                    <div style="font-size:13.5px; color:var(--text-dark); margin-bottom:18px; text-align:left; line-height:1.4;">
+                    <div style="font-weight:800; font-size:17px; color:#b91c1c; margin-bottom:6px; text-align:left;"><svg width="18" height="18" viewBox="0 0 24 24" style="vertical-align:middle; flex-shrink:0;"><circle cx="12" cy="12" r="11" fill="#dc2626"/><path d="M8 8L16 16M16 8L8 16" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/></svg> ¿Eliminar amigo?</div>
+                    <div style="font-size:14.5px; color:var(--text-dark); margin-bottom:18px; text-align:left; line-height:1.4;">
                         ¿Eliminar a <strong>"${deleteTarget.name}"</strong>? Se soltarán todos los productos que tuviera cogidos en cualquier escapada. No se puede deshacer.
                     </div>
                     <div style="display:flex; gap:10px;">
@@ -858,8 +856,8 @@
 
             if (phase === 1) {
                 container.innerHTML = `
-                    <div style="font-weight:800; font-size:16px; color:#b91c1c; margin-bottom:6px; text-align:left;"><svg width="18" height="18" viewBox="0 0 24 24" style="vertical-align:middle; flex-shrink:0;"><circle cx="12" cy="12" r="11" fill="#dc2626"/><path d="M8 8L16 16M16 8L8 16" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/></svg> ¿Eliminar ${isGroup ? 'Grupo' : 'Escapada'}?</div>
-                    <div style="font-size:13.5px; color:var(--text-dark); margin-bottom:18px; text-align:left; line-height:1.4;">
+                    <div style="font-weight:800; font-size:17px; color:#b91c1c; margin-bottom:6px; text-align:left;"><svg width="18" height="18" viewBox="0 0 24 24" style="vertical-align:middle; flex-shrink:0;"><circle cx="12" cy="12" r="11" fill="#dc2626"/><path d="M8 8L16 16M16 8L8 16" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/></svg> ¿Eliminar ${isGroup ? 'Grupo' : 'Escapada'}?</div>
+                    <div style="font-size:14.5px; color:var(--text-dark); margin-bottom:18px; text-align:left; line-height:1.4;">
                         ¿Eliminar permanentemente ${isGroup ? 'el grupo' : 'la escapada'} <strong>"${deleteTarget.name}"</strong>${isGroup ? ' y todos sus productos' : ''}?
                     </div>
                     <div style="display:flex; gap:10px;">
@@ -869,13 +867,13 @@
                 `;
             } else if (phase === 2) {
                 container.innerHTML = `
-                    <div style="font-weight:800; font-size:16px; color:#7f1d1d; margin-bottom:8px; text-align:left;">🚨 Confirmación de Seguridad</div>
-                    <div style="font-size:12.5px; color:var(--text-muted); margin-bottom:16px; text-align:left; line-height:1.4;">
+                    <div style="font-weight:800; font-size:17px; color:#7f1d1d; margin-bottom:8px; text-align:left;">Confirmación de Seguridad</div>
+                    <div style="font-size:13.5px; color:var(--text-muted); margin-bottom:16px; text-align:left; line-height:1.4;">
                         Esta acción borrará ${isGroup ? 'todos los productos de este grupo' : 'todas las listas vinculadas a esta escapada'} de forma irreversible en la nube.
                     </div>
                     <label style="display:flex; align-items:center; gap:10px; background:#fff5f5; border:1px solid #fee2e2; padding:12px; border-radius:var(--border-radius-sm); margin-bottom:18px; text-align:left; cursor:pointer;">
                         <input type="checkbox" id="security-lock-checkbox" style="width:20px; height:20px;" onchange="window.toggleFinalDeleteButton(this.checked)">
-                        <span style="font-size:12px; font-weight:700; color:#991b1b;">Entiendo los riesgos y deseo borrar permanentemente</span>
+                        <span style="font-size:13px; font-weight:700; color:#991b1b;">Entiendo los riesgos y deseo borrar permanentemente</span>
                     </label>
                     <div style="display:flex; gap:10px;">
                         <button class="btn-key key-wide" style="flex:1; margin:0;" onclick="window.closeDeleteModal()">Cancelar</button>
@@ -1319,13 +1317,13 @@
                 document.getElementById('view-cart').classList.remove('active');
 
                 const nameLabel = activeUserObj
-                    ? `<span onclick="window.changeIdentityInsideTrip()" style="cursor:pointer; font-size:18px; font-weight:800; color:#fff; line-height:1.2; white-space:normal; word-break:break-word; flex:1; min-width:0; display:flex; align-items:center; gap:6px;"><span>${activeUserObj.nombre}</span><span style="font-size:14px; opacity:0.8; flex-shrink:0;">🔄</span></span>`
-                    : `<span onclick="window.changeIdentityInsideTrip()" style="cursor:pointer; font-size:17px; font-weight:800; color:rgba(255,255,255,0.9); text-decoration:underline; flex:1; min-width:0; display:flex; align-items:center; gap:6px;">Identifícate<span style="font-size:14px; opacity:0.8;">🔄</span></span>`;
+                    ? `<span onclick="window.changeIdentityInsideTrip()" style="cursor:pointer; font-size:19px; font-weight:800; color:#fff; line-height:1.2; white-space:normal; word-break:break-word; flex:1; min-width:0; display:flex; align-items:center; gap:6px;"><span>${activeUserObj.nombre}</span><span style="font-size:15px; opacity:0.8; flex-shrink:0;">🔄</span></span>`
+                    : `<span onclick="window.changeIdentityInsideTrip()" style="cursor:pointer; font-size:18px; font-weight:800; color:rgba(255,255,255,0.9); text-decoration:underline; flex:1; min-width:0; display:flex; align-items:center; gap:6px;">Identifícate<span style="font-size:15px; opacity:0.8;">🔄</span></span>`;
                 const cartBg = activeUserObj ? activeUserObj.color : 'rgba(255,255,255,0.15)';
                 const cartBorder = activeUserObj ? '#fff' : 'rgba(255,255,255,0.3)';
                 actionsTarget.innerHTML = `
                     ${nameLabel}
-                    <button class="btn-round-nav" onclick="window.goToCartView()" title="Mi Carrito" style="background-color:${cartBg}; border-color:${cartBorder}; font-size:24px; flex-shrink:0;">🛒</button>
+                    <button class="btn-round-nav" onclick="window.goToCartView()" title="Mi Carrito" style="background-color:${cartBg}; border-color:${cartBorder}; font-size:25px; flex-shrink:0;">🛒</button>
                 `;
             } else if (currentTab === 'cart') {
                 if(logoEl) logoEl.style.display = 'flex';
@@ -1334,8 +1332,8 @@
                 document.getElementById('view-general').classList.remove('active');
                 document.getElementById('view-cart').classList.add('active');
                 const nameLabel = activeUserObj
-                    ? `<span onclick="window.changeIdentityInsideTrip()" style="cursor:pointer; font-size:18px; font-weight:800; color:#fff; line-height:1.2; white-space:normal; word-break:break-word; flex:1; min-width:0; display:flex; align-items:center; gap:6px;"><span>${activeUserObj.nombre}</span><span style="font-size:14px; opacity:0.8; flex-shrink:0;">🔄</span></span>`
-                    : `<span onclick="window.changeIdentityInsideTrip()" style="cursor:pointer; font-size:17px; font-weight:800; color:rgba(255,255,255,0.9); text-decoration:underline; flex:1; min-width:0; display:flex; align-items:center; gap:6px;">Identifícate<span style="font-size:14px; opacity:0.8;">🔄</span></span>`;
+                    ? `<span onclick="window.changeIdentityInsideTrip()" style="cursor:pointer; font-size:19px; font-weight:800; color:#fff; line-height:1.2; white-space:normal; word-break:break-word; flex:1; min-width:0; display:flex; align-items:center; gap:6px;"><span>${activeUserObj.nombre}</span><span style="font-size:15px; opacity:0.8; flex-shrink:0;">🔄</span></span>`
+                    : `<span onclick="window.changeIdentityInsideTrip()" style="cursor:pointer; font-size:18px; font-weight:800; color:rgba(255,255,255,0.9); text-decoration:underline; flex:1; min-width:0; display:flex; align-items:center; gap:6px;">Identifícate<span style="font-size:15px; opacity:0.8;">🔄</span></span>`;
                 actionsTarget.innerHTML = `${nameLabel}`;
             }
 
@@ -1345,7 +1343,7 @@
                 loginTarget.innerHTML = '';
                 const allUsers = Object.values(db.usuarios);
                 if(allUsers.length === 0) {
-                    loginTarget.innerHTML = `<div style="color:var(--text-muted); font-size:13px; margin-bottom:12px; text-align:center;">No hay amigos guardados todavía.</div>`;
+                    loginTarget.innerHTML = `<div style="color:var(--text-muted); font-size:14px; margin-bottom:12px; text-align:center;">No hay amigos guardados todavía.</div>`;
                 } else {
                     allUsers.forEach(u => {
                         const btn = document.createElement('button');
@@ -1360,7 +1358,7 @@
                 }
                 const newUserBtn = document.createElement('button');
                 newUserBtn.className = 'btn-selection-row btn-add-extra';
-                newUserBtn.innerHTML = `<span>➕ Nuevo usuario</span>`;
+                newUserBtn.innerHTML = `<span>Nuevo usuario</span>`;
                 newUserBtn.onclick = () => window.openUserCreationFromLogin();
                 loginTarget.appendChild(newUserBtn);
 
@@ -1380,7 +1378,7 @@
                 eventsTarget.innerHTML = '';
                 const allTrips = Object.values(db.eventos);
                 if(allTrips.length === 0) {
-                    eventsTarget.innerHTML = '<div class="empty-illustration"><span>🏕️</span>No hay ningún viaje creado todavía.</div>';
+                    eventsTarget.innerHTML = '<div class="empty-illustration">No hay ningún viaje creado todavía.</div>';
                 } else {
                     allTrips.forEach(ev => {
                         const isEditingName = editingEventNameId !== null && String(editingEventNameId) === String(ev.id);
@@ -1392,10 +1390,10 @@
                             div.style.marginBottom = '10px';
                             div.innerHTML = `
                                 <div class="item-label-group" style="flex:1; min-width:0;">
-                                    <input type="search" enterkeyhint="enter" name="campo_texto_5" autocomplete="one-time-code" data-lpignore="true" data-1p-ignore="true" data-form-type="other" autocorrect="off" autocapitalize="sentences" spellcheck="false" id="edit-event-name-input-${ev.id}" value="${safeAttr}" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.confirmEditEventName('${ev.id}', event); }" style="font-size:17px; font-weight:800; border:2px solid var(--primary); border-radius:8px; padding:7px 10px; width:100%; background:#fff; color:var(--text-dark);">
+                                    <input type="search" enterkeyhint="enter" name="campo_texto_5" autocomplete="one-time-code" data-lpignore="true" data-1p-ignore="true" data-form-type="other" autocorrect="off" autocapitalize="sentences" spellcheck="false" id="edit-event-name-input-${ev.id}" value="${safeAttr}" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.confirmEditEventName('${ev.id}', event); }" style="font-size:18px; font-weight:800; border:2px solid var(--primary); border-radius:8px; padding:7px 10px; width:100%; background:#fff; color:var(--text-dark);">
                                 </div>
                                 <div style="display:flex; align-items:center; gap:8px;">
-                                    <button style="background:#dcfce7; color:#16a34a; border:none; width:38px; height:38px; border-radius:50%; font-size:17px; flex-shrink:0; display:flex; align-items:center; justify-content:center;" onclick="window.confirmEditEventName('${ev.id}', event)">✅</button>
+                                    <button style="background:#dcfce7; color:#16a34a; border:none; width:38px; height:38px; border-radius:50%; font-size:18px; flex-shrink:0; display:flex; align-items:center; justify-content:center;" onclick="window.confirmEditEventName('${ev.id}', event)">✅</button>
                                 </div>
                             `;
                             eventsTarget.appendChild(div);
@@ -1414,7 +1412,7 @@
                             const row = document.createElement('div');
                             row.className = 'interactive-item';
                             row.style.cssText = 'position:relative; margin-bottom:0; justify-content:center; touch-action:pan-y; user-select:none; cursor:pointer;';
-                            row.innerHTML = `<span class="item-main-text" style="font-size:18px; font-weight:800; text-align:center;">${ev.nombre}</span>`;
+                            row.innerHTML = `<span class="item-main-text" style="font-size:19px; font-weight:800; text-align:center;">${ev.nombre}</span>`;
                             wrapper.appendChild(row);
 
                             eventsTarget.appendChild(wrapper);
@@ -1430,14 +1428,14 @@
                 generalTarget.innerHTML = '';
                 const activeGrupos = Object.values(db.grupos).filter(g => g.evento_id === activeEventId);
                 if(activeGrupos.length === 0 && currentTab === 'general') {
-                    generalTarget.innerHTML = '<div class="empty-illustration"><span>📦</span>No hay categorías en este viaje. Crea la primera arriba.</div>';
+                    generalTarget.innerHTML = '<div class="empty-illustration">No hay categorías en este viaje. Crea la primera arriba.</div>';
                 }
                 if(activeGrupos.length > 0){
                     const filterBar = document.createElement('label');
                     filterBar.style.cssText = 'display:flex; align-items:center; gap:10px; background:#faf9f6; border:1px solid #eae6df; padding:10px 14px; border-radius:var(--border-radius-sm); margin-bottom:14px; cursor:pointer;';
                     filterBar.innerHTML = `
                         <input type="checkbox" ${hideClaimedItems ? 'checked' : ''} onchange="window.toggleHideClaimedItems()" style="width:20px; height:20px; flex-shrink:0;">
-                        <span style="font-size:13.5px; font-weight:700; color:var(--text-dark);">🙈 Ocultar productos ya cogidos o comprados</span>
+                        <span style="font-size:14.5px; font-weight:700; color:var(--text-dark);">Ocultar productos ya cogidos o comprados</span>
                     `;
                     generalTarget.appendChild(filterBar);
                 }
@@ -1450,8 +1448,8 @@
                     const isCollapsed = collapsedGroups.has(String(g.id));
                     let html = `
                         <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:${isCollapsed ? '0' : '14px'};">
-                            <span onclick="window.toggleGroupCollapse('${g.id}')" style="cursor:pointer; color:var(--primary); font-size:20px; font-weight:900; line-height:1; padding:4px 8px 4px 0; flex-shrink:0; user-select:none;">${isCollapsed ? '▸' : '▾'}</span>
-                            <div class="subgroup-banner-title" style="margin-bottom:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; cursor:pointer;" onclick="window.toggleGroupCollapse('${g.id}')">📦 ${g.nombre}</div>
+                            <span onclick="window.toggleGroupCollapse('${g.id}')" style="cursor:pointer; color:var(--primary); font-size:21px; font-weight:900; line-height:1; padding:4px 8px 4px 0; flex-shrink:0; user-select:none;">${isCollapsed ? '▸' : '▾'}</span>
+                            <div class="subgroup-banner-title" style="margin-bottom:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; cursor:pointer;" onclick="window.toggleGroupCollapse('${g.id}')">${g.nombre}</div>
                             <button class="btn-pill-claim" style="border-color:#dc2626; color:#dc2626; flex-shrink:0;" onclick="window.triggerGroupDeleteFlow('${g.id}', '${safeGroupName}', event)"><svg width="18" height="18" viewBox="0 0 24 24" style="vertical-align:middle; flex-shrink:0;"><circle cx="12" cy="12" r="11" fill="#dc2626"/><path d="M8 8L16 16M16 8L8 16" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/></svg></button>
                         </div>
                     `;
@@ -1464,7 +1462,7 @@
                         <div>
                         `;
                         if(allProds.length > 0 && prods.length === 0){
-                            html += `<div class="group-empty" style="font-size:12.5px; color:var(--text-muted); font-style:italic; padding:6px 2px;">Todo lo de este grupo está cogido o comprado.</div>`;
+                            html += `<div class="group-empty" style="font-size:13.5px; color:var(--text-muted); font-style:italic; padding:6px 2px;">Todo lo de este grupo está cogido o comprado.</div>`;
                         }
                         prods.forEach(p => {
                         let rowStyle = `border-left: 8px solid #cbd5e1;`;
@@ -1487,21 +1485,21 @@
                                 delBtnStyle = 'border-color:#dc2626; color:#dc2626; background:#fff;';
                                 qtyBtnStyle = `background:rgba(255,255,255,0.9); border-color:#fff; color:${c}; font-weight:800;`;
                             }
-                            bTxt = (String(p.usuario_id) === String(activeUserId)) ? 'Soltar' : 'Quitar';
+                            bTxt = (String(p.usuario_id) === String(activeUserId)) ? 'Soltar' : 'Lo compro yo';
                         }
                         html += `
                             <div class="interactive-item ${cssClass}" style="${rowStyle} padding:9px 12px; margin-bottom:7px;">
                                 <div class="item-label-group" style="padding-right:6px;">
                                     ${editingProductNameId !== null && String(editingProductNameId) === String(p.id) ? `
-                                        <input type="search" enterkeyhint="enter" name="campo_texto_7" autocomplete="one-time-code" data-lpignore="true" data-1p-ignore="true" data-form-type="other" autocorrect="off" autocapitalize="sentences" spellcheck="false" id="edit-product-name-input-${p.id}" value="${(p.nombre||'').replace(/"/g, '&quot;')}" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.confirmEditProductName('${p.id}', event); }" onblur="window.confirmEditProductName('${p.id}', event)" style="font-size:14px; font-weight:700; border:2px solid var(--primary); border-radius:6px; padding:4px 8px; width:100%; background:#fff; color:var(--text-dark);">
+                                        <input type="search" enterkeyhint="enter" name="campo_texto_7" autocomplete="one-time-code" data-lpignore="true" data-1p-ignore="true" data-form-type="other" autocorrect="off" autocapitalize="sentences" spellcheck="false" id="edit-product-name-input-${p.id}" value="${(p.nombre||'').replace(/"/g, '&quot;')}" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.confirmEditProductName('${p.id}', event); }" onblur="window.confirmEditProductName('${p.id}', event)" style="font-size:15px; font-weight:700; border:2px solid var(--primary); border-radius:6px; padding:4px 8px; width:100%; background:#fff; color:var(--text-dark);">
                                     ` : `
-                                        <span class="item-main-text" style="font-size:14px; cursor:text; ${nameStyle} ${checked ? 'text-decoration:line-through; opacity:0.7;' : ''}" onclick="window.startEditProductName('${p.id}', event)">${p.nombre}</span>
+                                        <span class="item-main-text" style="font-size:15px; cursor:text; ${nameStyle} ${checked ? 'text-decoration:line-through; opacity:0.7;' : ''}" onclick="window.startEditProductName('${p.id}', event)">${p.nombre}</span>
                                     `}
                                 </div>
                                 <div style="display:flex; align-items:center; gap:5px;">
-                                    <button class="btn-quantity-picker" style="padding:5px 10px; font-size:12.5px; margin-right:0; ${qtyBtnStyle}" onclick="window.openQtyKeyboardPopup('${p.id}', event)">x${p.cantidad_deseada || 1}</button>
-                                    ${checked ? '' : `<button class="btn-pill-claim" style="padding:6px 11px; font-size:11.5px; ${claimBtnStyle}" onclick="window.toggleClaim('${p.id}')">${bTxt}</button>`}
-                                    <button class="btn-pill-claim" style="padding:6px 8px; font-size:11.5px; ${delBtnStyle}" onclick="window.triggerProductDeleteFlow('${p.id}', '${safeProdName}', event)"><svg width="18" height="18" viewBox="0 0 24 24" style="vertical-align:middle; flex-shrink:0;"><circle cx="12" cy="12" r="11" fill="#dc2626"/><path d="M8 8L16 16M16 8L8 16" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/></svg></button>
+                                    <button class="btn-quantity-picker" style="padding:5px 10px; font-size:13.5px; margin-right:0; ${qtyBtnStyle}" onclick="window.openQtyKeyboardPopup('${p.id}', event)">x${p.cantidad_deseada || 1}</button>
+                                    ${checked ? '' : `<button class="btn-pill-claim" style="padding:6px 11px; font-size:12.5px; ${claimBtnStyle}" onclick="window.toggleClaim('${p.id}')">${bTxt}</button>`}
+                                    <button class="btn-pill-claim" style="padding:6px 8px; font-size:12.5px; ${delBtnStyle}" onclick="window.triggerProductDeleteFlow('${p.id}', '${safeProdName}', event)"><svg width="18" height="18" viewBox="0 0 24 24" style="vertical-align:middle; flex-shrink:0;"><circle cx="12" cy="12" r="11" fill="#dc2626"/><path d="M8 8L16 16M16 8L8 16" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/></svg></button>
                                 </div>
                             </div>
                         `;
@@ -1532,7 +1530,7 @@
                 filterBarCart.style.cssText = 'display:flex; align-items:center; gap:10px; background:#faf9f6; border:1px solid #eae6df; padding:10px 14px; border-radius:var(--border-radius-sm); margin-bottom:16px; cursor:pointer;';
                 filterBarCart.innerHTML = `
                     <input type="checkbox" ${hideBoughtInCart ? 'checked' : ''} onchange="window.toggleHideBoughtInCart()" style="width:20px; height:20px; flex-shrink:0;">
-                    <span style="font-size:13.5px; font-weight:700; color:var(--text-dark);">🙈 Ocultar ya comprados</span>
+                    <span style="font-size:14.5px; font-weight:700; color:var(--text-dark);">Ocultar ya comprados</span>
                 `;
                 cartTarget.appendChild(filterBarCart);
 
@@ -1547,7 +1545,7 @@
                         const sgCardInCart = document.createElement('div');
                         sgCardInCart.className = 'subgroup-card';
                         sgCardInCart.style.marginBottom = '16px';
-                        sgCardInCart.innerHTML = `<div class="subgroup-banner-title" style="color:var(--primary); font-size:14px; margin-bottom:12px; font-weight:800;">📦 ${g.nombre}</div>`;
+                        sgCardInCart.innerHTML = `<div class="subgroup-banner-title" style="color:var(--primary); font-size:15px; margin-bottom:12px; font-weight:800;">${g.nombre}</div>`;
 
                         const itemsContainer = document.createElement('div');
 
@@ -1580,8 +1578,8 @@
                                 </div>
                                 <div style="display:flex; align-items:center; gap:12px;">
                                     ${total > 1 ? `
-                                        <button class="btn-quantity-picker" style="background:#faf9f6; border:1.5px dashed var(--accent); color:var(--text-dark); margin-right:0; font-size:12.5px; padding:7px 12px; font-weight:800;" onclick="window.openCartQtyPopup('${p.id}', event)">
-                                            ✏️ ${bought} de ${total}
+                                        <button class="btn-quantity-picker" style="background:#faf9f6; border:1.5px dashed var(--accent); color:var(--text-dark); margin-right:0; font-size:13.5px; padding:7px 12px; font-weight:800;" onclick="window.openCartQtyPopup('${p.id}', event)">
+                                            ${bought} de ${total}
                                         </button>
                                     ` : ''}
                                     <div class="custom-checkbox"></div>
@@ -1596,11 +1594,11 @@
                 });
 
                 if(absoluteTotalItemsInCart === 0 && currentTab === 'cart') {
-                    cartTarget.innerHTML = '<div class="empty-illustration"><span>🛒</span>No tienes productos asignados. Selecciona "Lo compro" en la lista general.</div>';
+                    cartTarget.innerHTML = '<div class="empty-illustration">No tienes productos asignados. Selecciona "Lo compro" en la lista general.</div>';
                 } else if(visibleItemsInCart === 0 && currentTab === 'cart') {
                     const emptyMsg = document.createElement('div');
                     emptyMsg.className = 'empty-illustration';
-                    emptyMsg.innerHTML = '<span>✅</span>Ya has comprado todo lo que tenías cogido.';
+                    emptyMsg.innerHTML = 'Ya has comprado todo lo que tenías cogido.';
                     cartTarget.appendChild(emptyMsg);
                 }
             }
