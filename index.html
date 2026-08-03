@@ -1496,7 +1496,7 @@
                                     ${editingProductNameId !== null && String(editingProductNameId) === String(p.id) ? `
                                         <input type="search" enterkeyhint="enter" name="campo_texto_7" autocomplete="one-time-code" data-lpignore="true" data-1p-ignore="true" data-form-type="other" autocorrect="off" autocapitalize="sentences" spellcheck="false" id="edit-product-name-input-${p.id}" value="${(p.nombre||'').replace(/"/g, '&quot;')}" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.confirmEditProductName('${p.id}', event); }" onblur="window.confirmEditProductName('${p.id}', event)" style="font-size:15px; font-weight:700; border:2px solid var(--primary); border-radius:6px; padding:4px 8px; width:100%; background:#fff; color:var(--text-dark);">
                                     ` : `
-                                        <span class="item-main-text" style="font-size:15px; cursor:text; ${nameStyle} ${checked ? 'text-decoration:line-through; opacity:0.7;' : ''}" onclick="window.startEditProductName('${p.id}', event)">${p.nombre}</span>
+                                        <span class="item-main-text" style="font-size:15px; cursor:text; ${nameStyle} ${checked ? 'text-decoration:line-through;' : ''}" onclick="window.startEditProductName('${p.id}', event)">${p.nombre}</span>
                                     `}
                                 </div>
                                 <div style="display:flex; align-items:center; gap:5px;">
