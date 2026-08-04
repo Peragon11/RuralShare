@@ -1537,11 +1537,10 @@
                         }
                         prods.forEach(p => {
                         let rowStyle = `background:#faf9f6; border-left: 8px solid transparent;`;
-                        let bTxt = 'Lo compro'; let cssClass = ''; let claimBtnStyle = ''; let delBtnStyle = 'border-color:#dc2626; color:#dc2626; background:#fff;';
+                        let bTxt = 'Lo compro'; let cssClass = ''; let claimBtnStyle = '';
                         let nameStyle = '';
                         let qtyBtnStyle = '';
                         const checked = isProductChecked(p);
-                        const safeProdName = (p.nombre||'').replace(/'/g, "\\'");
                         if(p.usuario_id) {
                             const u = db.usuarios[p.usuario_id];
                             const c = u ? u.color : "#cbd5e1";
@@ -1553,24 +1552,27 @@
                                 rowStyle = `background:${c}; border-left: 8px solid ${c};`;
                                 nameStyle = `color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.35);`;
                                 claimBtnStyle = `background:rgba(255,255,255,0.9); border-color:#fff; color:${c}; font-weight:800;`;
-                                delBtnStyle = 'border-color:#dc2626; color:#dc2626; background:#fff;';
                                 qtyBtnStyle = `background:rgba(255,255,255,0.9); border-color:#fff; color:${c}; font-weight:800;`;
                             }
                             bTxt = (String(p.usuario_id) === String(activeUserId)) ? 'Soltar' : 'Lo compro yo';
                         }
                         html += `
-                            <div class="interactive-item ${cssClass}" style="${rowStyle} padding:9px 12px; margin-bottom:7px;">
-                                <div class="item-label-group" style="padding-right:6px;">
-                                    ${editingProductNameId !== null && String(editingProductNameId) === String(p.id) ? `
-                                        <input type="search" enterkeyhint="enter" name="campo_texto_7" autocomplete="one-time-code" data-lpignore="true" data-1p-ignore="true" data-form-type="other" autocorrect="off" autocapitalize="sentences" spellcheck="false" id="edit-product-name-input-${p.id}" value="${(p.nombre||'').replace(/"/g, '&quot;')}" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.confirmEditProductName('${p.id}', event); }" onblur="window.confirmEditProductName('${p.id}', event)" style="font-size:15px; font-weight:700; border:2px solid var(--primary); border-radius:6px; padding:4px 8px; width:100%; background:#fff; color:var(--text-dark);">
-                                    ` : `
-                                        <span class="item-main-text" style="font-size:15px; cursor:text; ${nameStyle} ${checked ? 'text-decoration:line-through;' : ''}" onclick="window.startEditProductName('${p.id}', event)">${p.nombre}</span>
-                                    `}
+                            <div class="product-swipe-wrapper" data-product-id="${p.id}" style="position:relative; overflow:hidden; border-radius:12px; margin-bottom:7px;">
+                                <div class="product-swipe-bg" style="position:absolute; inset:0; background:#dc2626; opacity:0; pointer-events:none;">
+                                    <span class="product-swipe-trash" style="position:absolute; top:50%; transform:translateY(-50%); left:18px;"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M8 8L16 16M16 8L8 16" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg></span>
                                 </div>
-                                <div style="display:flex; align-items:center; gap:5px;">
-                                    <button class="btn-quantity-picker" style="padding:5px 10px; font-size:13.5px; margin-right:0; ${qtyBtnStyle}" onclick="window.openQtyKeyboardPopup('${p.id}', event)">x${p.cantidad_deseada || 1}</button>
-                                    ${checked ? '' : `<button class="btn-pill-claim" style="padding:6px 11px; font-size:12.5px; ${claimBtnStyle}" onclick="window.toggleClaim('${p.id}')">${bTxt}</button>`}
-                                    <button class="btn-pill-claim" style="padding:6px 8px; font-size:12.5px; ${delBtnStyle}" onclick="window.triggerProductDeleteFlow('${p.id}', '${safeProdName}', event)"><svg width="18" height="18" viewBox="0 0 24 24" style="vertical-align:middle; flex-shrink:0;"><circle cx="12" cy="12" r="11" fill="#dc2626"/><path d="M8 8L16 16M16 8L8 16" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/></svg></button>
+                                <div class="interactive-item product-swipe-row ${cssClass}" style="${rowStyle} padding:9px 12px; margin-bottom:0; position:relative;">
+                                    <div class="item-label-group" style="padding-right:6px;">
+                                        ${editingProductNameId !== null && String(editingProductNameId) === String(p.id) ? `
+                                            <input type="search" enterkeyhint="enter" name="campo_texto_7" autocomplete="one-time-code" data-lpignore="true" data-1p-ignore="true" data-form-type="other" autocorrect="off" autocapitalize="sentences" spellcheck="false" id="edit-product-name-input-${p.id}" value="${(p.nombre||'').replace(/"/g, '&quot;')}" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.confirmEditProductName('${p.id}', event); }" onblur="window.confirmEditProductName('${p.id}', event)" style="font-size:15px; font-weight:700; border:2px solid var(--primary); border-radius:6px; padding:4px 8px; width:100%; background:#fff; color:var(--text-dark);">
+                                        ` : `
+                                            <span class="item-main-text" style="font-size:15px; cursor:text; ${nameStyle} ${checked ? 'text-decoration:line-through;' : ''}" onclick="window.startEditProductName('${p.id}', event)">${p.nombre}</span>
+                                        `}
+                                    </div>
+                                    <div style="display:flex; align-items:center; gap:5px;">
+                                        <button class="btn-quantity-picker" style="padding:5px 10px; font-size:13.5px; margin-right:0; ${qtyBtnStyle}" onclick="window.openQtyKeyboardPopup('${p.id}', event)">x${p.cantidad_deseada || 1}</button>
+                                        ${checked ? '' : `<button class="btn-pill-claim" style="padding:6px 11px; font-size:12.5px; ${claimBtnStyle}" onclick="window.toggleClaim('${p.id}')">${bTxt}</button>`}
+                                    </div>
                                 </div>
                             </div>
                         `;
@@ -1579,6 +1581,20 @@
                     }
                     card.innerHTML = html;
                     generalTarget.appendChild(card);
+
+                    card.querySelectorAll('.product-swipe-wrapper').forEach(wrapperEl => {
+                        const pid = wrapperEl.getAttribute('data-product-id');
+                        const rowEl = wrapperEl.querySelector('.product-swipe-row');
+                        const bgEl = wrapperEl.querySelector('.product-swipe-bg');
+                        const trashEl = wrapperEl.querySelector('.product-swipe-trash');
+                        const prodObj = db.productos[pid];
+                        if(rowEl && bgEl && trashEl && prodObj){
+                            attachSwipeToDelete(wrapperEl, rowEl, bgEl, trashEl, () => {
+                                const safeProdName = (prodObj.nombre||'').replace(/'/g, "\\'");
+                                window.triggerProductDeleteFlow(pid, safeProdName, { stopPropagation(){} });
+                            });
+                        }
+                    });
 
                     if(scrollToGroupId && String(g.id) === scrollToGroupId){
                         const targetCard = card;
