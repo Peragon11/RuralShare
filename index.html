@@ -174,7 +174,7 @@
         <div class="flow-card">
             <div style="position: absolute; top:15px; right:15px; font-size:21px; cursor:pointer;" onclick="window.closeBackgroundPicker()">✕</div>
             <div class="flow-title">Fondo de la app</div>
-            <div class="flow-subtitle">Elige la imagen de fondo en este dispositivo (solo afecta a tu móvil):</div>
+            <div class="flow-subtitle">Elige la imagen de fondo en este dispositivo:</div>
             <div id="background-picker-grid" style="display:grid; grid-template-columns:repeat(2, 1fr); gap:10px; max-height:50vh; overflow-y:auto; margin-bottom:6px; padding-right:2px;"></div>
         </div>
     </div>
@@ -692,10 +692,6 @@
                 const isSelected = file === current;
                 cell.style.cssText = `position:relative; aspect-ratio:1; border-radius:14px; overflow:hidden; cursor:pointer; border:3px solid ${isSelected ? 'var(--primary)' : 'transparent'}; background:#eae6df url('${file}') center/cover no-repeat; box-shadow:${isSelected ? '0 0 0 2px rgba(27,67,50,0.25)' : 'none'};`;
                 cell.onclick = () => window.selectBackground(file);
-                const tag = document.createElement('div');
-                tag.textContent = label;
-                tag.style.cssText = 'position:absolute; bottom:5px; right:7px; font-size:11px; font-weight:800; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.85);';
-                cell.appendChild(tag);
                 if(isSelected){
                     const check = document.createElement('div');
                     check.textContent = '✓';
