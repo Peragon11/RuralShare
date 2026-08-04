@@ -1025,6 +1025,7 @@
             localStorage.setItem('rs_active_event', created.id);
             currentTab = "general";
             renderEngine();
+            pushTabState();
         }
 
         window.startEditEventName = function(eventId, event) {
