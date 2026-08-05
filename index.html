@@ -221,7 +221,10 @@
                         document.write(`<button class="btn-key" onclick="window.selectQtyFromKeyboard(${i})">${i}</button>`);
                     }
                 </script>
-                <button class="btn-key key-wide" onclick="window.selectQtyManualCustom()">Otro nº</button>
+                <div style="grid-column: span 2; display:flex; gap:6px;">
+                    <input type="number" inputmode="numeric" id="custom-qty-input" min="1" placeholder="Otro nº" style="width:0; flex:1; padding:0 10px; border:1px solid #cbd5e1; border-radius:var(--border-radius-sm); font-size:16px; text-align:center; background:#f1f5f9; color:var(--text-dark);" onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.selectQtyManualCustom(); }">
+                    <button class="btn-key" style="background:#16a34a; color:#fff; flex-shrink:0; width:48px; padding:0; font-size:20px; font-weight:900;" onclick="window.selectQtyManualCustom()">+</button>
+                </div>
                 <button class="btn-key key-wide key-close" onclick="window.closeQtyKeyboard()">Cerrar</button>
             </div>
         </div>
@@ -1087,6 +1090,8 @@
             if(!prod) return;
             selectedProductForQtyId = productId;
             document.getElementById('qty-popup-title').innerText = `Unidades: ${prod.nombre}`;
+            const customInput = document.getElementById('custom-qty-input');
+            if(customInput) customInput.value = '';
             document.getElementById('qty-keyboard-popup').classList.add('active');
             pushPopupStub('qty-keyboard-popup');
         }
@@ -1108,14 +1113,14 @@
         window.selectQtyManualCustom = async function() {
             const prod = db.productos[selectedProductForQtyId];
             if(!prod) return;
-            const val = prompt(`Cantidad para "${prod.nombre}":`, prod.cantidad_deseada || 1);
-            if(val !== null) {
-                const parsed = parseInt(val, 10);
-                const nueva = isNaN(parsed) || parsed < 1 ? 1 : parsed;
-                const patch = { cantidad_deseada: nueva };
-                if((prod.cantidad_comprada || 0) > nueva) patch.cantidad_comprada = nueva;
-                await sbUpdate('productos', prod.id, patch);
-            }
+            const input = document.getElementById('custom-qty-input');
+            if(!input || !input.value.trim()) return;
+            const parsed = parseInt(input.value, 10);
+            const nueva = isNaN(parsed) || parsed < 1 ? 1 : parsed;
+            const patch = { cantidad_deseada: nueva };
+            if((prod.cantidad_comprada || 0) > nueva) patch.cantidad_comprada = nueva;
+            await sbUpdate('productos', prod.id, patch);
+            input.value = '';
             window.closeQtyKeyboard();
         }
 
