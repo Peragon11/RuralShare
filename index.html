@@ -1293,6 +1293,61 @@
         // MOTOR CENTRAL DE PROYECCIÓN DE PANTALLAS
         // ════════════════════════════════════════════════════════════
         // ════════════════════════════════════════════════════════════
+        // DESLIZAR PARA ELIMINAR (versión simple, sin pulsación larga):
+        // usada en las filas de producto de la lista general.
+        // ════════════════════════════════════════════════════════════
+        function attachSwipeToDelete(wrapperEl, rowEl, bgEl, trashEl, onConfirmDelete) {
+            const SWIPE_THRESHOLD = 90;
+            const MOVE_TOLERANCE = 10;
+            let startX = 0, startY = 0, dx = 0, dragging = false, moved = false;
+
+            function begin(x, y) {
+                startX = x; startY = y; dx = 0; dragging = true; moved = false;
+                rowEl.style.transition = 'none';
+            }
+            function move(x, y) {
+                if(!dragging) return;
+                const deltaX = x - startX;
+                const deltaY = y - startY;
+                if(Math.abs(deltaX) > MOVE_TOLERANCE || Math.abs(deltaY) > MOVE_TOLERANCE){
+                    moved = true;
+                }
+                if(Math.abs(deltaY) > Math.abs(deltaX)) return;
+                dx = deltaX;
+                rowEl.style.transform = `translateX(${dx}px)`;
+                const progress = Math.min(Math.abs(dx) / SWIPE_THRESHOLD, 1);
+                bgEl.style.opacity = String(progress);
+                if(dx > 0){
+                    trashEl.style.left = '18px';
+                    trashEl.style.right = 'auto';
+                } else if(dx < 0){
+                    trashEl.style.right = '18px';
+                    trashEl.style.left = 'auto';
+                }
+            }
+            function end() {
+                const wasDragOverThreshold = Math.abs(dx) > SWIPE_THRESHOLD;
+                dragging = false;
+                rowEl.style.transition = 'transform 0.2s ease';
+                rowEl.style.transform = 'translateX(0px)';
+                bgEl.style.opacity = '0';
+                if(wasDragOverThreshold){
+                    onConfirmDelete();
+                }
+                dx = 0;
+            }
+
+            wrapperEl.addEventListener('touchstart', e => begin(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
+            wrapperEl.addEventListener('touchmove', e => move(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
+            wrapperEl.addEventListener('touchend', end);
+            wrapperEl.addEventListener('touchcancel', end);
+
+            wrapperEl.addEventListener('mousedown', e => begin(e.clientX, e.clientY));
+            wrapperEl.addEventListener('mousemove', e => { if(dragging) move(e.clientX, e.clientY); });
+            document.addEventListener('mouseup', () => { if(dragging) end(); });
+        }
+
+        // ════════════════════════════════════════════════════════════
         // GESTOS DE LA FILA DE ESCAPADA: pulsación larga = editar,
         // deslizar hacia un lado = eliminar (con doble aviso posterior)
         // ════════════════════════════════════════════════════════════
@@ -1561,7 +1616,7 @@
                                 <div class="product-swipe-bg" style="position:absolute; inset:0; background:#dc2626; opacity:0; pointer-events:none;">
                                     <span class="product-swipe-trash" style="position:absolute; top:50%; transform:translateY(-50%); left:18px;"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M8 8L16 16M16 8L8 16" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg></span>
                                 </div>
-                                <div class="interactive-item product-swipe-row ${cssClass}" style="${rowStyle} padding:9px 12px; margin-bottom:0; position:relative;">
+                                <div class="interactive-item product-swipe-row ${cssClass}" style="${rowStyle} padding:9px 12px; margin-bottom:0; position:relative; touch-action:pan-y; user-select:none;">
                                     <div class="item-label-group" style="padding-right:6px;">
                                         ${editingProductNameId !== null && String(editingProductNameId) === String(p.id) ? `
                                             <input type="search" enterkeyhint="enter" name="campo_texto_7" autocomplete="one-time-code" data-lpignore="true" data-1p-ignore="true" data-form-type="other" autocorrect="off" autocapitalize="sentences" spellcheck="false" id="edit-product-name-input-${p.id}" value="${(p.nombre||'').replace(/"/g, '&quot;')}" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.confirmEditProductName('${p.id}', event); }" onblur="window.confirmEditProductName('${p.id}', event)" style="font-size:15px; font-weight:700; border:2px solid var(--primary); border-radius:6px; padding:4px 8px; width:100%; background:#fff; color:var(--text-dark);">
