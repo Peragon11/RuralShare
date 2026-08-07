@@ -31,7 +31,7 @@
 
         body {
             background-color: var(--bg-app);
-            background-image: url("fondo01.png");
+            background-image: url("fondo01.webp");
             background-repeat: no-repeat;
             background-size: 100% 100%;
             background-attachment: fixed;
@@ -674,8 +674,8 @@
         // FONDO DE LA APP (elegible por el usuario, guardado en este dispositivo)
         // ════════════════════════════════════════════════════════════
         const BG_STORAGE_KEY = 'rs_bg_choice';
-        const BG_DEFAULT = 'fondo01.png';
-        const BG_OPTIONS = Array.from({ length: 10 }, (_, i) => `fondo${String(i + 1).padStart(2, '0')}.png`);
+        const BG_DEFAULT = 'fondo01.webp';
+        const BG_OPTIONS = Array.from({ length: 10 }, (_, i) => `fondo${String(i + 1).padStart(2, '0')}.webp`);
 
         function applyBackgroundChoice() {
             let saved = null;
