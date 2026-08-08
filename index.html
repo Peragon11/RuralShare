@@ -1271,7 +1271,12 @@
             const prod = db.productos[productId];
             if(!prod) return;
             if(String(prod.usuario_id) === String(activeUserId)) {
-                await sbUpdate('productos', productId, { usuario_id: null, cantidad_comprada: 0 });
+                const previous = { usuario_id: prod.usuario_id, cantidad_comprada: prod.cantidad_comprada };
+                prod.usuario_id = null;
+                prod.cantidad_comprada = 0;
+                renderEngine();
+                const result = await sbUpdate('productos', productId, { usuario_id: null, cantidad_comprada: 0 });
+                if(!result){ Object.assign(prod, previous); renderEngine(); }
             } else if(prod.usuario_id) {
                 pendingClaimOverrideProductId = productId;
                 const owner = db.usuarios[prod.usuario_id];
@@ -1280,17 +1285,28 @@
                 document.getElementById('claim-override-popup').classList.add('active');
                 pushPopupStub('claim-override-popup');
             } else {
-                await sbUpdate('productos', productId, { usuario_id: activeUserId });
+                const previous = { usuario_id: prod.usuario_id };
+                prod.usuario_id = activeUserId;
+                renderEngine();
+                const result = await sbUpdate('productos', productId, { usuario_id: activeUserId });
+                if(!result){ Object.assign(prod, previous); renderEngine(); }
             }
         }
 
         window.toggleCartCheck = async function(productId) {
             const prod = db.productos[productId];
             if(!prod) return;
+            const previous = prod.cantidad_comprada;
             if(isProductChecked(prod)) {
-                await sbUpdate('productos', productId, { cantidad_comprada: 0 });
+                prod.cantidad_comprada = 0;
+                renderEngine();
+                const result = await sbUpdate('productos', productId, { cantidad_comprada: 0 });
+                if(!result){ prod.cantidad_comprada = previous; renderEngine(); }
             } else {
-                await sbUpdate('productos', productId, { cantidad_comprada: prod.cantidad_deseada || 1 });
+                prod.cantidad_comprada = prod.cantidad_deseada || 1;
+                renderEngine();
+                const result = await sbUpdate('productos', productId, { cantidad_comprada: prod.cantidad_deseada || 1 });
+                if(!result){ prod.cantidad_comprada = previous; renderEngine(); }
             }
         }
 
