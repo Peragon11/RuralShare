@@ -1872,6 +1872,7 @@
         try { history.replaceState({ tab: currentTab, eventId: activeEventId }, '', ''); } catch(e) {}
 
         applyBackgroundChoice();
+        BG_OPTIONS.forEach(file => { const img = new Image(); img.src = file; });
         subscribeRealtime();
         loadAll();
 
